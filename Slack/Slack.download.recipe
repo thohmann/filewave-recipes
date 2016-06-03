@@ -57,6 +57,19 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<key>userid</key>
+				<string>0</string>
+				<key>groupid</key>
+				<string>0</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.download.Slack/PathCHOWN</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>input_path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>requirement</key>
