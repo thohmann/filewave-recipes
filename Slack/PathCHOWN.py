@@ -13,11 +13,11 @@ class PathCHOWN(Processor):
 			'required': True,
 			'description': 'Name of filename resource',
 		},
-		'userid': {
+		'user': {
 			'required': True,
 			'description': 'chown uid E.g. "0,501,..."'
 		},
-		'groupid': {
+		'group': {
 			'required': True,
 			'description': 'chown gid. E.g. "0,20,80,..."'
 		},
@@ -27,10 +27,10 @@ class PathCHOWN(Processor):
 
 	def main(self):
 		path = self.env.get('path')
-		uid = self.env.get('user')
-		gid = self.env.get('group')
+		user = self.env.get('user')
+		group = self.env.get('group')
 		if os.path.exists(path):
-			owner = uid + ':' + gid
+			owner = user + ':' + group
 			cmd = ['sudo', 'chown', '-R', owner, path]
 			proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			

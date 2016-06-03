@@ -59,10 +59,10 @@
 			<dict>
 				<key>path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
-				<key>userid</key>
-				<integer>0</integer>
-				<key>groupid</key>
-				<integer>0</integer>
+				<key>user</key>
+				<string>root</string>
+				<key>group</key>
+				<string>wheel</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.thohmann.download.Slack/PathCHOWN</string>
