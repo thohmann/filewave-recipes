@@ -27,14 +27,17 @@ class PathCHOWN(Processor):
 
 	def main(self):
 		path = self.env.get('path')
-		uid = self.env.get('userid')
-		gid = self.env.get('groupid')
+		uid = self.env.get('user')
+		gid = self.env.get('group')
 		if os.path.exists(path):
-			for root, dirs, files in os.walk(path):
+			cmd = ['sudo', 'chown ','-R',uid+'gid:+', path, ]
+			proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			
+			'''for root, dirs, files in os.walk(path):
 				for momo in dirs:
 					os.lchown(os.path.join(root, momo), int(os.getenv('SUDO_UID')), int(os.getenv('SUDO_UID')))
 				for momo in files:
-					os.lchown(os.path.join(root, momo), int(os.getenv('SUDO_UID')), int(os.getenv('SUDO_UID')))
+					os.lchown(os.path.join(root, momo), int(os.getenv('SUDO_UID')), int(os.getenv('SUDO_UID')))'''
 	
 if __name__ == "__main__":
 	PROCESSOR = PathCHOWN()
