@@ -32,9 +32,9 @@ class PathCHOWN(Processor):
 		if os.path.exists(path):
 			for root, dirs, files in os.walk(path):
 				for momo in dirs:
-					os.lchown(os.path.join(root, momo), uid, gid)
+					os.lchown(os.path.join(root, momo), int(os.getenv('SUDO_UID')), int(os.getenv('SUDO_UID')))
 				for momo in files:
-					os.lchown(os.path.join(root, momo), uid, gid)
+					os.lchown(os.path.join(root, momo), int(os.getenv('SUDO_UID')), int(os.getenv('SUDO_UID')))
 	
 if __name__ == "__main__":
 	PROCESSOR = PathCHOWN()
