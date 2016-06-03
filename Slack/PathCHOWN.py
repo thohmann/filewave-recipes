@@ -32,7 +32,7 @@ class PathCHOWN(Processor):
 		group = self.env.get('group')
 		if os.path.exists(path):
 			owner = user + ':' + group
-			retcode = subprocess.call(['sudo', '/bin/chown', '-R', owner, path])
+			retcode = subprocess.call(['sudo', '/usr/bin/chown', '-R', owner, path])
 			if retcode:
 				raise ProcessorError('Error setting owner (chown %s) for %s' % (owner, path))
 
