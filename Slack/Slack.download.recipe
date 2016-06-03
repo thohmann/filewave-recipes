@@ -60,9 +60,9 @@
 				<key>path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>userid</key>
-				<string>0</string>
+				<integer>0</integer>
 				<key>groupid</key>
-				<string>0</string>
+				<integer>0</integer>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.thohmann.download.Slack/PathCHOWN</string>
