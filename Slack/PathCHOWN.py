@@ -30,7 +30,8 @@ class PathCHOWN(Processor):
 		uid = self.env.get('user')
 		gid = self.env.get('group')
 		if os.path.exists(path):
-			cmd = ['sudo', 'chown ','-R',''.join(uid,':',gid), path]
+			owner = uid + ':' + gid
+			cmd = ['sudo', 'chown', '-R', owner, path]
 			proc = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			
 			'''for root, dirs, files in os.walk(path):
