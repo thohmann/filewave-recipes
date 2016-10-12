@@ -11,7 +11,7 @@
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
-		<string>http://repository.cliqz.com.s3.amazonaws.com/dist/release/1.2.1/de/CLIQZ-1.2.1.de.mac.dmg</string>
+		<string>https://cdn.cliqz.com/browser-f/download/web0001/CLIQZ.de.mac.dmg</string>
 		<key>NAME</key>
 		<string>CLIQZ</string>
 	</dict>
