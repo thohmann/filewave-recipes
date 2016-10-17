@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>0.6.1</string>
 	<key>ParentRecipe</key>
-	<string>com.github.killahqam.download.Slack</string>
+	<string>com.github.killahquam.download.Slack</string>
 	<key>Process</key>
 	<array>
 		<dict>
