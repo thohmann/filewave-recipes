@@ -16,9 +16,22 @@
 	<key>MinimumVersion</key>
 	<string>0.6.1</string>
 	<key>ParentRecipe</key>
-	<string>com.github.thohmann.download.Slack</string>
+	<string>com.github.killahqam.download.Slack</string>
 	<key>Process</key>
 	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<key>user</key>
+				<string>root</string>
+				<key>group</key>
+				<string>admin</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>
