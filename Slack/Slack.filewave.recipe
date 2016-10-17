@@ -48,7 +48,8 @@
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
-			<dict>
+		</dict>
+		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
@@ -60,7 +61,6 @@
 			</dict>
 			<key>Processor</key>
 			<string>com.github.thohmann.pathchown/PathCHOWN</string>
-		</dict>
 		</dict>
 	</array>
 </dict>
