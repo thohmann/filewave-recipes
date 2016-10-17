@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of CLIQZ.</string>
 	<key>Identifier</key>
-	<string>com.burda.download.CLIQZ</string>
+	<string>com.burda.download.cliqz</string>
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
