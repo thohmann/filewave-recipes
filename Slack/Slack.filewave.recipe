@@ -23,7 +23,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
 				<key>user</key>
 				<string>root</string>
 				<key>group</key>
@@ -48,6 +48,19 @@
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+			<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<key>user</key>
+				<string>d427061</string>
+				<key>group</key>
+				<string>admin</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+		</dict>
 		</dict>
 	</array>
 </dict>
