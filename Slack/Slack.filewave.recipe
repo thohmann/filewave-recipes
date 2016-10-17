@@ -42,7 +42,7 @@
 				<key>fw_destination_root</key>
 				<string>/Applications/%NAME%.app</string>
 				<key>fw_fileset_group</key>
-				<string>Testing</string>
+				<string>Labor</string>
 				<key>fw_fileset_name</key>
 				<string>%NAME% %version% (Programm)</string>
 				<key>fw_import_source</key>
