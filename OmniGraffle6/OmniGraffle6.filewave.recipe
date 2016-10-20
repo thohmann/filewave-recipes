@@ -13,7 +13,7 @@
 		<key>NAME_SHORT</key>
 		<string>OmniGraffle</string>
         <key>fw_destination_root</key>
-        <string>/Applications/%app_name%</string>
+        <string>/Applications/%NAME_SHORT%.app</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.2.0</string>
