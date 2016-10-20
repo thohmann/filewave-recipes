@@ -7,7 +7,7 @@
 	<key>Description</key>
 	<string>Downloads the latest version of CLIQZ, creates a fileset, and copies it into your FileWave Server.</string>
 	<key>Identifier</key>
-	<string>com.burda.filewave.cliqz</string>
+	<string>com.github.thohmann.filewave.cliqz</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>0.6.1</string>
 	<key>ParentRecipe</key>
-	<string>com.burda.download.cliqz</string>
+	<string>com.github.thohmann.download.cliqz</string>
 	<key>Process</key>
 	<array>
 		<dict>
@@ -55,7 +55,7 @@
 				<key>path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>user</key>
-				<string>d427061</string>
+				<string>me</string>
 				<key>group</key>
 				<string>admin</string>
 			</dict>

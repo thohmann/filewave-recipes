@@ -89,7 +89,7 @@
 				<key>path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>user</key>
-				<string>d427061</string>
+				<string>me</string>
 				<key>group</key>
 				<string>admin</string>
 			</dict>

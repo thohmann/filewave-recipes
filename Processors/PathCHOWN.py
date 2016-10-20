@@ -30,6 +30,8 @@ class PathCHOWN(Processor):
 		path = self.env.get('path')
 		user = self.env.get('user')
 		group = self.env.get('group')
+		if user == 'me':
+			user = os.getlogin()
 		if os.path.exists(path):
 			owner = user + ':' + group
 			retcode = subprocess.call(['sudo', '/usr/sbin/chown', '-R', owner, path])
