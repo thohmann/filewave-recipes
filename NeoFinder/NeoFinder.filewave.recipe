@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Comment</key>
+	<string></string>
+	<key>Description</key>
+	<string>Downloads the latest version of NeoFinder, creates a fileset, and copies it into your FileWave Server.</string>
+	<key>Identifier</key>
+	<string>com.github.thohmann.filewave.NeoFinder</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>NeoFinder</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>0.6.1</string>
+	<key>ParentRecipe</key>
+	<string>com.github.homebysix.download.NeoFinder</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<key>user</key>
+				<string>root</string>
+				<key>group</key>
+				<string>admin</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fw_app_bundle_id</key>
+				<string>de.wfs-apps.neofinder</string>
+				<key>fw_app_version</key>
+				<string>%version%</string>
+				<key>fw_destination_root</key>
+				<string>/Applications/%NAME%.app</string>
+				<key>fw_fileset_name</key>
+				<string>%NAME% %version% (Programm)</string>
+				<key>fw_import_source</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<key>user</key>
+				<string>me</string>
+				<key>group</key>
+				<string>admin</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+		</dict>
+	</array>
+</dict>
+</plist>
