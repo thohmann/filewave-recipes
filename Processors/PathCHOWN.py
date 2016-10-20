@@ -3,6 +3,7 @@
 from autopkglib import Processor, ProcessorError
 import os
 import subprocess
+import getpass
 
 __all__ = ["PathCHOWN"]
 
@@ -31,7 +32,7 @@ class PathCHOWN(Processor):
 		user = self.env.get('user')
 		group = self.env.get('group')
 		if user == 'me':
-			user = os.getlogin()
+			user = getpass.getuser()
 		if os.path.exists(path):
 			owner = user + ':' + group
 			retcode = subprocess.call(['sudo', '/usr/sbin/chown', '-R', owner, path])
