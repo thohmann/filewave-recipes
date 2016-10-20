@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest Skype disk image and imports into FileWave.</string>
 	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.skype</string>
+	<string>com.github.thohmann.filewave.Skype</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>0.2.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.autopkg.download.skype</string>
+	<string>com.github.autopkg.download.Skype</string>
 	<key>Process</key>
 	<array>
 		<dict>
