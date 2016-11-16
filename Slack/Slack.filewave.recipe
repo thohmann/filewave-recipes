@@ -32,6 +32,8 @@
 					<string>fw_app_bundle_id</string>
 					<key>CFBundleShortVersionString</key>
 					<string>fw_app_version</string>
+					<key>CFBundleShortVersionString</key>
+					<string>version</string>
 				</dict>
 			</dict>
 			<key>Processor</key>
