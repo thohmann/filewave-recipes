@@ -14,9 +14,9 @@
         <string>/Applications/%NAME%.app</string>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>1.0.1</string>
+	<string>0.3.0</string>
 	<key>ParentRecipe</key>
-	<string>local.download.Cyberduck</string>
+	<string>com.github.autopkg.download.Cyberduck</string>
 	<key>Process</key>
 	<array>
 		<dict>
