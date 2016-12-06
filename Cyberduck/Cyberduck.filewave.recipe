@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.1</string>
 	<key>ParentRecipe</key>
-	<string>local.download.Cyberduck</string>
+	<string>com.github.autopkg.download.Cyberduck</string>
 	<key>Process</key>
 	<array>
 		<dict>
