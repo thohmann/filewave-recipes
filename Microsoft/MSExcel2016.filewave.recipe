@@ -40,20 +40,11 @@
 				<string>%pkgroot%/%NAME%.app</string>
 				<key>source_path</key>
 				<string>/Applications/%NAME%.app</string>
+				<key>overwrite</key>
+				<string>true</string>
 			</dict>
 			<key>Processor</key>
 			<string>Copier</string>
-		</dict>
-		<dict>
-    		<key>Processor</key>
-   			<string>PathDeleter</string>
-    		<key>Arguments</key>
-   			<dict>
-       			<key>path_list</key>
-       			<array>
-            		<string>/Applications/%NAME%.app</string>
-        		</array>
-   			</dict>
 		</dict>
 		<dict>
 			<key>Arguments</key>
