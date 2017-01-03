@@ -38,8 +38,6 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>comment</key>
-				<string>narf</string>
 				<key>fw_app_bundle_id</key>
 				<string>%bundle_id%.PKG</string>
 				<key>fw_app_version</key>
