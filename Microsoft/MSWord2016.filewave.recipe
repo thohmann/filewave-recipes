@@ -10,7 +10,7 @@
 	<dict>
 		<key>NAME</key>
 		<string>Microsoft Word</string>
-		<key>locale_id</key>
+		<key>LOCALE_ID</key>
 		<string>1031</string>
         <key>fw_destination_root</key>
         <string>/Applications/%NAME%.app</string>
