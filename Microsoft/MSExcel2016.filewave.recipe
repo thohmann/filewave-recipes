@@ -48,30 +48,6 @@
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
 		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>path</key>
-				<string>/Applications/%NAME%.app</string>
-				<key>user</key>
-				<string>me</string>
-				<key>group</key>
-				<string>admin</string>
-			</dict>
-			<key>Processor</key>
-			<string>com.github.thohmann.pathchown/PathCHOWN</string>
-		</dict>
-		<dict>
-    		<key>Processor</key>
-    		<string>PathDeleter</string>
-   			<key>Arguments</key>
-    		<dict>
-        		<key>path_list</key>
-        		<array>
-            		<string>/Applications/%NAME%.app</string>
-        		</array>
-    		</dict>
-		</dict>
 	</array>
 </dict>
 </plist>
