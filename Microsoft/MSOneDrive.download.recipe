@@ -39,7 +39,7 @@ the latest full update for the given CHANNEL.
     <array>
         <dict>
             <key>Processor</key>
-            <string>MSOffice2016URLandUpdateInfoProvider</string>
+            <string>com.github.autopkg.recipes.MSOfficeUpdates/MSOffice2016URLandUpdateInfoProvider</string>
             <key>Arguments</key>
             <dict>
                 <key>channel</key>
