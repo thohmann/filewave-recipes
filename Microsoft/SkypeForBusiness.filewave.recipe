@@ -9,7 +9,7 @@
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
-		<string>Microsoft Word</string>
+		<string>Skype for Business</string>
 		<key>locale_id</key>
 		<string>1031</string>
         <key>fw_destination_root</key>
