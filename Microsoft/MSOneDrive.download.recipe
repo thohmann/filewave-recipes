@@ -17,16 +17,6 @@
     </dict>
     <key>Process</key>
     <array>
-    	<dict>
-            <key>Processor</key>
-            <string>CURLTextSearcher</string>
-            <key>Arguments</key>
-            <dict>
-            	<key>url</key>
-                <string>%DOWNLOAD_URL%</string>
-            </dict>
-        </dict>
-    	
         <dict>
             <key>Processor</key>
             <string>URLDownloader</string>
