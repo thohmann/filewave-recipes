@@ -25,7 +25,7 @@
             	<key>url</key>
                 <string>%DOWNLOAD_URL%</string>
                 <key>filename</key>
-                <string>%NAME%-%version%.pkg</string>
+                <string>%NAME%.pkg</string>
             </dict>
         </dict>
         <dict>
