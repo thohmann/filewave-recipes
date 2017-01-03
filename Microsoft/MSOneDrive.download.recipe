@@ -29,7 +29,7 @@ the latest full update for the given CHANNEL.
         <key>CHANNEL</key>
         <string>Production</string>
         <key>LOCALE_ID</key>
-        <string>1031</string>
+        <string>1033</string>
         <key>NAME</key>
         <string>MSOneDrive</string>
         <key>VERSION</key>
