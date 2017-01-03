@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the current release version of MS AutoUpdate and imports into FileWave</string>
 	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.AutoUpdate</string>
+	<string>com.github.thohmann.filewave.MSAutoUpdate</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
