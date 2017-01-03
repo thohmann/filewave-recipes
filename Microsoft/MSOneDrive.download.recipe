@@ -12,7 +12,7 @@
     <dict>
         <key>NAME</key>
         <string>OneDrive</string>
-         <key>DOWNLOAD_URL</key>
+        <key>DOWNLOAD_URL</key>
         <string>https://go.microsoft.com/fwlink/?linkid=823060</string>
     </dict>
     <key>Process</key>
@@ -22,6 +22,8 @@
             <string>URLDownloader</string>
             <key>Arguments</key>
             <dict>
+            	<key>url</key>
+                <string>%DOWNLOAD_URL%</string>
                 <key>filename</key>
                 <string>%NAME%-%version%.pkg</string>
             </dict>
