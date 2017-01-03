@@ -16,14 +16,22 @@
         <string>https://go.microsoft.com/fwlink/?linkid=823060</string>
     </dict>
     <key>Process</key>
-    <array>    	
-        <dict>
+    <array>
+    	<dict>
             <key>Processor</key>
-            <string>CURLDownloader</string>
+            <string>CURLTextSearcher</string>
             <key>Arguments</key>
             <dict>
-            	<key>request_headers</key>
-            	<string>true</string>
+            	<key>url</key>
+                <string>%DOWNLOAD_URL%</string>
+            </dict>
+        </dict>
+    	
+        <dict>
+            <key>Processor</key>
+            <string>URLDownloader</string>
+            <key>Arguments</key>
+            <dict>
             	<key>url</key>
                 <string>%DOWNLOAD_URL%</string>
                 <key>filename</key>
