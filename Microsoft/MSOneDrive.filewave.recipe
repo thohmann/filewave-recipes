@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.1</string>
 	<key>ParentRecipe</key>
-	<string>com.github.autopkg.install.MSOneDrive</string>
+	<string>com.github.thohmann.install.MSOneDrive</string>
 	<key>Process</key>
 	<array>
 		<dict>
