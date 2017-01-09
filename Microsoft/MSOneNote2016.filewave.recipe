@@ -34,6 +34,8 @@
 					<string>fw_app_version</string>
 					<key>CFBundleShortVersionString</key>
 					<string>version</string>
+					<key>LSMinimumSystemVersion</key>
+					<string>fw_app_minsysversion</string>
 				</dict>
 			</dict>
 			<key>Processor</key>
@@ -43,7 +45,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>fw_fileset_name</key>
-				<string>%NAME% 365 %version% (Programm)</string>
+				<string>%NAME% 365 %version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
 				<string>/Applications/%NAME%.app</string>
 			</dict>

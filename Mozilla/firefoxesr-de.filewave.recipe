@@ -56,6 +56,20 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>info_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<key>plist_keys</key>
+				<dict>
+					<key>LSMinimumSystemVersion</key>
+					<string>fw_app_minsysversion</string>
+				</dict>
+			</dict>
+			<key>Processor</key>
+			<string>PlistReader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>user</key>
@@ -76,7 +90,7 @@
 				<key>fw_destination_root</key>
 				<string>/Applications/%NAME%.app</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% ESR %version% (Programm)</string>
+				<string>%NAME% ESR %version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 			</dict>
