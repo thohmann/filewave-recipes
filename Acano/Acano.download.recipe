@@ -9,7 +9,7 @@
     <key>Input</key>
     <dict>
         <key>NAME</key>
-        <string>Acano</string>
+        <string>AcanoClient</string>
     </dict>
     <key>MinimumVersion</key>
     <string>1.0.1</string>
@@ -31,6 +31,8 @@
             <string>URLDownloader</string>
             <key>Arguments</key>
             <dict>
+            	<key>url</key>
+            	<string>%match%</string>
                 <key>filename</key>
                 <string>%NAME%.dmg</string>
             </dict>
@@ -38,6 +40,17 @@
         <dict>
             <key>Processor</key>
             <string>EndOfCheckPhase</string>
+        </dict>
+         <dict>
+            <key>Processor</key>
+            <string>CodeSignatureVerifier</string>
+            <key>Arguments</key>
+            <dict>
+                <key>input_path</key>
+                <string>%pathname%/%NAME%.app</string>
+                <key>requirement</key>
+                <string>anchor apple generic and identifier "com.acano.client" and (certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = LR4S8EKZC6)</string>
+            </dict>
         </dict>
     </array>
 </dict>
