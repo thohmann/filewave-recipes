@@ -73,7 +73,7 @@
 				<key>path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>mode</key>
-				<string>o+r</string>
+				<string>a+r</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.thohmann.pathchmod/PathCHMOD</string>

@@ -7,7 +7,7 @@ import os
 __all__ = ["PathCHMOD"]
 
 class PathCHMOD(Processor):
-	'''Changes file modes'''
+	'''Changes path modes'''
 
 	input_variables = {
 		'path': {
@@ -26,7 +26,7 @@ class PathCHMOD(Processor):
 		path = self.env.get('path')
 		mode = self.env.get('mode')
 
-		retcode = subprocess.call(['/bin/chmod','-R', mode, path])
+		retcode = subprocess.call(['sudo','/bin/chmod','-R', mode, path])
 		if retcode:
 			raise ProcessorError('Error setting mode (chmod %s) for %s' % (mode, path))
 
