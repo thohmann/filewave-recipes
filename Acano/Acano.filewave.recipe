@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.1</string>
 	<key>ParentRecipe</key>
-	<string>com.github.autopkg.download.Acano</string>
+	<string>com.github.thohmann.download.Acano</string>
 	<key>Process</key>
 	<array>
 		<dict>
