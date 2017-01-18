@@ -62,6 +62,8 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>version</key>
+				<string>%fw_app_version%</string>
 				<key>fw_fileset_name</key>
 				<string>%fw_name% %version% ab macOS 10.x (Programm)</string>
 				<key>fw_import_source</key>
