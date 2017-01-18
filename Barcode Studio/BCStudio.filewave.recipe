@@ -54,6 +54,8 @@
 					<string>fw_app_bundle_id</string>
 					<key>CFBundleShortVersionString</key>
 					<string>fw_app_version</string>
+					<key>CFBundleName</key>
+					<string>fw_app_name</string>
 				</dict>
 			</dict>
 			<key>Processor</key>
@@ -62,10 +64,8 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>version</key>
-				<string>%fw_app_version%</string>
 				<key>fw_fileset_name</key>
-				<string>%fw_name% %version% ab macOS 10.x (Programm)</string>
+				<string>%fw_app_name% %fw_app_version% ab macOS 10.x (Programm)</string>
 				<key>fw_import_source</key>
 				<string>/Applications/%NAME%.app</string>
 			</dict>
