@@ -4,15 +4,15 @@ from autopkglib import Processor, ProcessorError
 import subprocess
 import os
 
-__all__ = ["ModeChanger"]
+__all__ = ["PathCHMOD"]
 
-class ModeChanger(Processor):
+class PathCHMOD(Processor):
 	'''Changes file modes'''
 
 	input_variables = {
 		'path': {
 			'required': True,
-			'description': 'Name of filename resource',
+			'description': 'Name of path resource',
 		},
 		'mode': {
 			'required': True,
