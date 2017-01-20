@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>1.0.1</string>
 	<key>ParentRecipe</key>
-	<string>com.github.autokpg.download.Adium</string>
+	<string>com.github.autopkg.download.Adium</string>
 	<key>Process</key>
 	<array>
 		<dict>
