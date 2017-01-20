@@ -62,7 +62,6 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				
 				<string>%NAME% %fw_app_version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
 				<string>/Applications/%NAME%.app</string>
