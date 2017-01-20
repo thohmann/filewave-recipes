@@ -46,12 +46,13 @@
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
-				<string>%pkgroot%/Applications/%app_name%</string>
-				<key>source_path</key>
-				<string>%pathname%/%app_name%</string>
+				<string>%pkgroot%/Applications/</string>
+				<key>flat_pkg_path</key>
+				<string>%pathname%/*.pkg</string>
+				<key>purge_destination</key>
 			</dict>
 			<key>Processor</key>
-			<string>Copier</string>
+			<string>FlatPkgUnpacker</string>
 		</dict>
 			<dict>
 			<key>Arguments</key>
