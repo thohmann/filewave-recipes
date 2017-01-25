@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads and installs the current release version of OneDrive and imports into FileWave</string>
+	<string>Downloads and installs the current release version of MS OneDrive and imports into FileWave</string>
 	<key>Identifier</key>
 	<string>com.github.thohmann.filewave.MSOneDrive</string>
 	<key>Input</key>
