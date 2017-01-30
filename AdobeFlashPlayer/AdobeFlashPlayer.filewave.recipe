@@ -13,6 +13,8 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 		<string>Adobe Flash Player</string>
         <key>fw_destination_root</key>
         <string>/</string>
+        <key>pkg_target</key>
+        <string>/Volumes/pkgtarget</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.1</string>
@@ -23,35 +25,17 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>path_list</key>
-				<array>
-					<string>/Volumes/pkgtarget/*</string>
-				</array>
-			</dict>
-			<key>Comment</key>
-			<string>deletes contet of pkgtarget disk</string>
-			<key>Processor</key>
-			<string>PathDeleter</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>pkgdirs</key>
-				<dict>
-					<key>System</key>
-					<string>0775</string>
-				</dict>
-				<key>pkgroot</key>
-				<string>/Volumes/pkgtarget</string>
+				<key>path</key>
+				<string>%pkg_target%</string>
 			</dict>
 			<key>Processor</key>
-			<string>PkgRootCreator</string>
+			<string>com.github.thohmann.pathcleaner/PathCleaner</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
-				<string>/Volumes/pkgtarget/System/Library/CoreServices/</string>
+				<string>%pkg_target%/System/Library/CoreServices/</string>
 				<key>source_path</key>
 				<string>/System/Library/CoreServices/SystemVersion.plist</string>
 			</dict>
@@ -70,14 +54,12 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
         <dict>
 			<key>Arguments</key>
 			<dict>
-				<key>path_list</key>
-				<array>
-					<string>/Volumes/pkgtarget/System</string>
-					<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
-				</array>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
 			</dict>
 			<key>Processor</key>
-			<string>PathDeleter</string>
+			<string>com.github.thohmann.pathcleaner/PathCleaner</string>
+		</dict>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -122,13 +104,13 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 			<dict>
 				<key>fw_app_version</key>
 				<string>%version%</string>
+				<key>fw_app_bundle_id</key>
+				<string>com.adobe.flashplayer</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% %version% (PKG)</string>
+				<string>%NAME% %version% (PlugIn)</string>
 				<key>fw_import_source</key>
-				<string>%pkg_path%</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
 			</dict>
-			<key>Comment</key>
-			<string>Import the Adobe AIR pkg into FileWave</string>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
 		</dict>
