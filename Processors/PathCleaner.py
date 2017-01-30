@@ -2,7 +2,7 @@
 
 from autopkglib import Processor, ProcessorError
 import os
-import shutil
+import subprocessl
 
 __all__ = ["PathCleaner"]
 
@@ -22,10 +22,10 @@ class PathCleaner(Processor):
 		folder_path = self.env.get('path')
 		for file_object in os.listdir(folder_path):
 			file_object_path = os.path.join(folder_path, file_object)
-			if os.path.isfile(file_object_path):
-				os.unlink(file_object_path)
-			else:
-				shutil.rmtree(file_object_path)
+			if os.path.exists(file_object_path):
+			retcode = subprocess.call(['sudo', '/bin/rm', '-R', file_object_path])
+			if retcode:
+				raise ProcessorError('Error deleting %s' % (file_object_path))
 
 if __name__ == "__main__":
 	PROCESSOR = PathCleaner()
