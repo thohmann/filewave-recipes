@@ -2,6 +2,7 @@
 
 from autopkglib import Processor, ProcessorError
 import os
+import shutil
 
 __all__ = ["PathCleaner"]
 
