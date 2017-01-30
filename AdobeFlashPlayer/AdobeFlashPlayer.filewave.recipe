@@ -34,22 +34,26 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>destination_path</key>
-				<string>%pkg_target%/System/Library/CoreServices/</string>
-				<key>source_path</key>
-				<string>/System/Library/CoreServices/SystemVersion.plist</string>
+				<key>url</key>
+				<string>https://github.com/thohmann/filewave-recipes/blob/master/Processors/SystemVersion.zip</string>
 			</dict>
 			<key>Processor</key>
-			<string>Copier</string>
+			<string>CURLDownloader</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>archive_path</key>
+				<string>%pathname%</string>
+				<key>destination_path</key>
+				<string>%pkg_targer%</string>
+			</dict>
+			<key>Processor</key>
+			<string>Unarchiver</string>
 		</dict>
 		<dict>
             <key>Processor</key>
             <string>Installer_pkgtarget</string>
-            <key>Arguments</key>
-            <dict>
-                <key>pkg_path</key>
-                <string>%pathname%</string>
-            </dict>
         </dict>
         <dict>
 			<key>Arguments</key>
@@ -80,7 +84,7 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 				<key>destination_path</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
 				<key>source_path</key>
-				<string>/Volumes/pkgtarget</string>
+				<string>%pkg_target%</string>
 			</dict>
 			<key>Processor</key>
 			<string>Copier</string>
