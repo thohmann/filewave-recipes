@@ -23,9 +23,9 @@ class PathCleaner(Processor):
 		for file_object in os.listdir(folder_path):
 			file_object_path = os.path.join(folder_path, file_object)
 			if os.path.exists(file_object_path):
-			retcode = subprocess.call(['sudo', '/bin/rm', '-R', file_object_path])
-			if retcode:
-				raise ProcessorError('Error deleting %s' % (file_object_path))
+				retcode = subprocess.call(['sudo', '/bin/rm', '-R', file_object_path])
+				if retcode:
+					raise ProcessorError('Error deleting %s' % (file_object_path))
 
 if __name__ == "__main__":
 	PROCESSOR = PathCleaner()
