@@ -25,7 +25,7 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 			<dict>
 				<key>path_list</key>
 				<array>
-					<string>/Volumes/pkgtarget/</string>
+					<string>/Volumes/pkgtarget/*</string>
 				</array>
 			</dict>
 			<key>Comment</key>
