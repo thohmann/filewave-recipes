@@ -17,7 +17,7 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 	<key>MinimumVersion</key>
 	<string>1.0.1</string>
 	<key>ParentRecipe</key>
-	<string>com.github.autopkg.pkg.FlasPlayerExtractPackage</string>
+	<string>com.github.autopkg.pkg.FlashPlayerExtractPackage</string>
 	<key>Process</key>
 	<array>
 		<dict>
