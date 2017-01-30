@@ -36,8 +36,8 @@ Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/ad
 			<dict>
 				<key>url</key>
 				<string>https://github.com/thohmann/filewave-recipes/blob/master/Processors/SystemVersion.zip</string>
-				<key>download_dir</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/downloads</string>
+				<key>filename</key>
+				<string>SystemVersion.zip</string>
 			</dict>
 			<key>Processor</key>
 			<string>CURLDownloader</string>
