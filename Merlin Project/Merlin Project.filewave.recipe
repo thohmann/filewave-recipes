@@ -69,9 +69,9 @@
 			<key>Arguments</key>
 			<dict>
 				<key>fw_app_version</key>
-				<string>%version%%build%</string>
+				<string>%version%.%build%</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% %version% B%build% ab macOS %fw_app_minsysversion% (Programm)</string>
+				<string>%NAME% %version%.%build% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
 			</dict>
