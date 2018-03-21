@@ -62,6 +62,8 @@
 				<dict>
 					<key>LSMinimumSystemVersion</key>
 					<string>fw_app_minsysversion</string>
+					<key>CFBundleVersion</key>
+					<string>fw_app_build</string>
 				</dict>
 			</dict>
 			<key>Processor</key>
@@ -86,9 +88,9 @@
 				<key>fw_app_bundle_id</key>
 				<string>%bundleid%</string>
 				<key>fw_app_version</key>
-				<string>%version%</string>
+				<string>%version%.%fw_app_build%</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% %version% ab macOS %fw_app_minsysversion% (Programm)</string>
+				<string>%NAME% %version% Build %fw_app_build% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
 				<string>%pkgroot%/Applications/%app_name%</string>
 			</dict>
