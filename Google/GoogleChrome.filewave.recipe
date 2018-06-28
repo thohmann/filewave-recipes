@@ -20,6 +20,15 @@
 	<key>Process</key>
 	<array>
 		<dict>
+            <key>Processor</key>
+            <string>AppDmgVersioner</string>
+            <key>Arguments</key>
+            <dict>
+                <key>dmg_path</key>
+                <string>%pathname%</string>
+            </dict>
+        </dict>
+		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>pkgdirs</key>
@@ -37,9 +46,9 @@
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
-				<string>%pkgroot%/Applications/%NAME%.app</string>
+				<string>%pkgroot%/Applications/%app_name%</string>
 				<key>source_path</key>
-				<string>%pathname%/%Name%.app</string>
+				<string>%pathname%/%app_name%</string>
 			</dict>
 			<key>Processor</key>
 			<string>Copier</string>
@@ -48,7 +57,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>info_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%app_name%</string>
 				<key>plist_keys</key>
 				<dict>
 					<key>CFBundleIdentifier</key>
@@ -66,7 +75,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%app_name%</string>
 				<key>user</key>
 				<string>root</string>
 				<key>group</key>
@@ -90,7 +99,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%app_name%</string>
 				<key>user</key>
 				<string>me</string>
 				<key>group</key>
