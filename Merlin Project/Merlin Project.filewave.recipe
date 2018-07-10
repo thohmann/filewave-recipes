@@ -18,7 +18,7 @@
 	<key>MinimumVersion</key>
 	<string>0.3.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.homebysix.download.MerlinProject</string>
+	<string>com.github.thohmann.download.MerlinProject</string>
 	<key>Process</key>
 	<array>
 		<dict>
