@@ -2,136 +2,69 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Description</key>
-	<string>Downloads the latest Adobe Flash Player installer and repackages it for unattended, silent installation, then imports into FileWave.
-Based on jamesz's work here: https://github.com/jamesez/automunki/tree/master/adobe-air</string>
-	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.AdobeFlashPlayer</string>
-	<key>Input</key>
-	<dict>
-		<key>NAME</key>
-		<string>Adobe Flash Player</string>
-        <key>fw_destination_root</key>
-        <string>/</string>
-        <key>pkg_target</key>
-        <string>/Volumes/pkgtarget</string>
-	</dict>
-	<key>MinimumVersion</key>
-	<string>1.0.1</string>
-	<key>ParentRecipe</key>
-	<string>com.github.autopkg.pkg.FlashPlayerExtractPackage</string>
-	<key>Process</key>
-	<array>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>path</key>
-				<string>%pkg_target%</string>
-			</dict>
-			<key>Processor</key>
-			<string>com.github.thohmann.pathcleaner/PathCleaner</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>url</key>
-				<string>https://github.com/thohmann/filewave-recipes/blob/master/Processors/SystemVersion.zip</string>
-				<key>filename</key>
-				<string>SystemVersion.zip</string>
-			</dict>
-			<key>Processor</key>
-			<string>CURLDownloader</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>archive_path</key>
-				<string>%pathname%</string>
-				<key>destination_path</key>
-				<string>%pkg_targer%</string>
-			</dict>
-			<key>Processor</key>
-			<string>Unarchiver</string>
-		</dict>
-		<dict>
+    <key>Description</key>
+    <string>Downloads Adobe Flash Player installer and extracts the embedded package. No repackaging done.</string>
+    <key>Identifier</key>
+    <string>com.github.thohmann.filewave.FlashPlayer</string>
+    <key>Input</key>
+    <dict>
+        <key>NAME</key>
+        <string>AdobeFlashPlayer</string>
+    </dict>
+    <key>MinimumVersion</key>
+    <string>0.6.0</string>
+    <key>ParentRecipe</key>
+    <string>com.github.autopkg.download.FlashPlayer</string>
+    <key>Process</key>
+    <array>
+        <dict>
+            <key>Comment</key>
+            <string>Get Adobe Flash version from the pkg</string>
             <key>Processor</key>
-            <string>Installer_pkgtarget</string>
+            <string>Versioner</string>
+            <key>Arguments</key>
+            <dict>
+                <key>input_plist_path</key>
+                <string>%pathname%/Install Adobe Flash Player.app/Contents/Info.plist</string>
+                <key>plist_version_key</key>
+                <string>CFBundleVersion</string>
+            </dict>
         </dict>
         <dict>
-			<key>Arguments</key>
-			<dict>
-				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
-			</dict>
+            <key>Comment</key>
+            <string>Copy the embedded package out of the application bundle in the disk image.</string>
+            <key>Arguments</key>
+            <dict>
+                <key>source_pkg</key>
+                <string>%pathname%/Install Adobe Flash Player.app/Contents/Resources/Adobe Flash Player.pkg</string>
+                <key>pkg_path</key>
+                <string>%RECIPE_CACHE_DIR%/Downloads/%NAME%.pkg</string>
+            </dict>
+            <key>Processor</key>
+            <string>PkgCopier</string>
+        </dict>
+       <dict>
 			<key>Processor</key>
-			<string>com.github.thohmann.pathcleaner/PathCleaner</string>
-		</dict>
-		<dict>
+			<string>PkgPayloadUnpacker</string>
 			<key>Arguments</key>
 			<dict>
-				<key>pkgdirs</key>
-				<dict>
-					<key>pkgtarget</key>
-					<string>0775</string>
-				</dict>
-				<key>pkgroot</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%</string>
-			</dict>
-			<key>Processor</key>
-			<string>PkgRootCreator</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
+				<key>pkg_payload_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack/AdobeFlashPlayerComponent.pkg/Payload</string>
 				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
-				<key>source_path</key>
-				<string>%pkg_target%</string>
+				<string>%RECIPE_CACHE_DIR%/Components</string>
 			</dict>
-			<key>Processor</key>
-			<string>Copier</string>
 		</dict>
 		<dict>
+			<key>Processor</key>
+			<string>PkgPayloadUnpacker</string>
 			<key>Arguments</key>
 			<dict>
-				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
-				<key>user</key>
-				<string>root</string>
-				<key>group</key>
-				<string>admin</string>
+				<key>pkg_payload_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack/AdobeFlashPlayerComponent.pkg/</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/Scripts</string>
 			</dict>
-			<key>Processor</key>
-			<string>com.github.thohmann.pathchown/PathCHOWN</string>
 		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>fw_app_version</key>
-				<string>%version%</string>
-				<key>fw_app_bundle_id</key>
-				<string>com.adobe.flashplayer</string>
-				<key>fw_fileset_name</key>
-				<string>%NAME% %version% (PlugIn)</string>
-				<key>fw_import_source</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
-			</dict>
-			<key>Processor</key>
-			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/pkgtarget</string>
-				<key>user</key>
-				<string>me</string>
-				<key>group</key>
-				<string>admin</string>
-			</dict>
-			<key>Processor</key>
-			<string>com.github.thohmann.pathchown/PathCHOWN</string>
-		</dict>
-	</array>
+    </array>
 </dict>
 </plist>
