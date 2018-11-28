@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the current release version of Mattermost and imports into FileWave.</string>
 	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.MAttermost</string>
+	<string>com.github.thohmann.filewave.Mattermost</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
