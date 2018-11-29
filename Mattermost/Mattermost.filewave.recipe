@@ -19,7 +19,6 @@
 	<string>com.github.peshay.download.Mattermost</string>
 	<key>Process</key>
 	<array>
-		<array>
 		<dict>
 			<key>Arguments</key>
 			<dict>
