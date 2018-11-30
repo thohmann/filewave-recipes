@@ -37,7 +37,7 @@
 					<string>0775</string>
 				</dict>
 				<key>pkgroot</key>
-				<string>%RECIPE_CACHE_DIR%/</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/</string>
 			</dict>
 			<key>Processor</key>
 			<string>PkgRootCreator</string>
@@ -46,7 +46,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%app_name%</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%app_name%</string>
 				<key>source_path</key>
 				<string>%pathname%/%app_name%</string>
 			</dict>
@@ -57,7 +57,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>info_path</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>plist_keys</key>
 				<dict>
 					<key>CFBundleIdentifier</key>
@@ -75,7 +75,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>user</key>
 				<string>root</string>
 				<key>group</key>
@@ -92,7 +92,7 @@
 				<key>fw_fileset_name</key>
 				<string>%NAME% %version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
@@ -101,7 +101,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>user</key>
 				<string>me</string>
 				<key>group</key>
