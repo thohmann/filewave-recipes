@@ -11,7 +11,7 @@
 		<key>NAME</key>
 		<string>Merlin Project</string>
 		<key>APP_NAME</key>
-		<string>Merlin Project 5.app</string>
+		<string>Merlin Project 6.app</string>
         <key>fw_destination_root</key>
         <string>/Applications/%APP_NAME%</string>
 	</dict>
