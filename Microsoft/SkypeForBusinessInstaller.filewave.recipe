@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the current release version of Skype for Business and imports PKG-file into FileWave</string>
+	<key>Identifier</key>
+	<string>com.github.thohmann.filewave.SkypeForBusinessInstaller</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>Skype for Business</string>
+		<key>LOCALE_ID</key>
+		<string>1031</string>
+        <key>fw_destination_root</key>
+        <string>/Library/Application Support/Microsoft Burda/Installer</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.4</string>
+	<key>ParentRecipe</key>
+	<string>com.github.autopkg.download.SkypeForBusiness</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+					<key>placeholder</key>
+					<string>0775</string>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Installer</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path_list</key>
+				<array>
+					<string>%RECIPE_CACHE_DIR%/%NAME%/Installer/placeholder</string>
+				</array>
+			</dict>
+			<key>Processor</key>
+			<string>PathDeleter</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>source_path</key>
+				<string>%pathname%</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Installer/%NAME%-%version%.pkg</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Installer</string>
+				<key>user</key>
+				<string>root</string>
+				<key>group</key>
+				<string>admin</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fw_fileset_name</key>
+				<string>Microsoft Office 365 - %NAME% %version% (Installer)</string>
+				<key>fw_import_source</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Installer</string>
+				<key>fw_app_bundle_id</key>
+				<string>com.microsoft.businessprosuite.installer</string>
+				<key>fw_app_version</key>
+				<string>%version%</string>
+
+			</dict>
+			<key>Processor</key>
+			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/Installer</string>
+				<key>user</key>
+				<string>me</string>
+				<key>group</key>
+				<string>admin</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+		</dict>
+
+	</array>
+</dict>
+</plist>
