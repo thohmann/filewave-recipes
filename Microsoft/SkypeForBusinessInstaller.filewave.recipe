@@ -79,7 +79,7 @@
 				<key>fw_import_source</key>
 				<string>%RECIPE_CACHE_DIR%/Installer</string>
 				<key>fw_app_bundle_id</key>
-				<string>com.microsoft.businessprosuite.installer</string>
+				<string>com.microsoft.skypeforbusiness.installer</string>
 				<key>fw_app_version</key>
 				<string>%version%</string>
 
