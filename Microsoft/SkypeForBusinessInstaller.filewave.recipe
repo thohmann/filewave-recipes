@@ -30,7 +30,7 @@
 					<string>0775</string>
 				</dict>
 				<key>pkgroot</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Installer</string>
+				<string>%RECIPE_CACHE_DIR%/Installer</string>
 			</dict>
 			<key>Processor</key>
 			<string>PkgRootCreator</string>
@@ -40,7 +40,7 @@
 			<dict>
 				<key>path_list</key>
 				<array>
-					<string>%RECIPE_CACHE_DIR%/%NAME%/Installer/placeholder</string>
+					<string>%RECIPE_CACHE_DIR%/Installer/placeholder</string>
 				</array>
 			</dict>
 			<key>Processor</key>
@@ -52,7 +52,7 @@
 				<key>source_path</key>
 				<string>%pathname%</string>
 				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Installer/%NAME%-%version%.pkg</string>
+				<string>%RECIPE_CACHE_DIR%/Installer/Skype_for_Business_%version%_installer.pkg</string>
 			</dict>
 			<key>Processor</key>
 			<string>Copier</string>
