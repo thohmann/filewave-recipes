@@ -16,7 +16,7 @@
         <string>/Applications/%NAME%.app</string>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>1.4.0</string>
+	<string>1.4</string>
 	<key>ParentRecipe</key>
 	<string>com.github.autopkg.download.SkypeForBusiness</string>
 	<key>Process</key>
