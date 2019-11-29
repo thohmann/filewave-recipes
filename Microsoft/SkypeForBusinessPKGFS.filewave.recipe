@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of MS Word 2016/365 and imports PKG-file into FileWave</string>
+	<string>Downloads the current release version of Skype for Business and imports PKG-file into FileWave</string>
 	<key>Identifier</key>
 	<string>com.github.thohmann.filewave.SkypeForBusinessPKGFS</string>
 	<key>Input</key>
