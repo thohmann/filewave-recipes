@@ -22,15 +22,6 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>dmg_path</key>
-				<string>%pathname%</string>
-			</dict>
-			<key>Processor</key>
-			<string>AppDmgVersioner</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
 				<key>pkgdirs</key>
 				<dict>
 					<key>Applications</key>
@@ -46,9 +37,9 @@
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
-				<string>%pkgroot%/Applications/%app_name%</string>
+				<string>%pkgroot%/Applications/%NAME%.app</string>
 				<key>source_path</key>
-				<string>%pkgroot%/downloads/%app_name%</string>
+				<string>%pkgroot%/downloads/%NAME%.app</string>
 			</dict>
 			<key>Processor</key>
 			<string>Copier</string>
@@ -60,6 +51,10 @@
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 				<key>plist_keys</key>
 				<dict>
+					<key>CFBundleIdentifier</key>
+					<string>fw_app_bundle_id</string>
+					<key>CFBundleShortVersionString</key>
+					<string>fw_app_version</string>
 					<key>LSMinimumSystemVersion</key>
 					<string>fw_app_minsysversion</string>
 				</dict>
@@ -83,10 +78,6 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>fw_app_bundle_id</key>
-				<string>%bundleid%</string>
-				<key>fw_app_version</key>
-				<string>%version%</string>
 				<key>fw_fileset_name</key>
 				<string>%NAME% %version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
