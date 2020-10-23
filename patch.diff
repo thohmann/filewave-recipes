@@ -1,0 +1,39 @@
+From 850bf204de53563d74130edfe8ac4a2f17c15702 Mon Sep 17 00:00:00 2001
+From: "Sen Gupta Dr. Rahul" <rahul.sengupta@burda.com>
+Date: Mon, 27 Jul 2020 18:11:10 +0200
+Subject: [PATCH] LSMinimumSystemVersion entfernt
+
+---
+ Seo Spider/Screaming Frog SEO Spider.filewave.recipe | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+diff --git a/Seo Spider/Screaming Frog SEO Spider.filewave.recipe b/Seo Spider/Screaming Frog SEO Spider.filewave.recipe
+index 8c0941c..4a9d356 100644
+--- a/Seo Spider/Screaming Frog SEO Spider.filewave.recipe	
++++ b/Seo Spider/Screaming Frog SEO Spider.filewave.recipe	
+@@ -64,10 +64,6 @@
+ 					<string>fw_app_bundle_id</string>
+ 					<key>CFBundleShortVersionString</key>
+ 					<string>fw_app_version</string>
+-					<!--
+-					<key>LSMinimumSystemVersion</key>
+-					<string>fw_app_minsysversion</string>
+-					-->
+ 				</dict>
+ 			</dict>
+ 			<key>Processor</key>
+@@ -89,10 +85,8 @@
+ 		<dict>
+ 			<key>Arguments</key>
+ 			<dict>
+-				<key>fw_app_minsysversion</key>
+-				<string>10.x</string>
+ 				<key>fw_fileset_name</key>
+-				<string>%NAME% %fw_app_version% ab macOS %fw_app_minsysversion% (Programm)</string>
++				<string>%NAME% %fw_app_version% ab macOS 10.x (Programm)</string>
+ 				<key>fw_import_source</key>
+ 				<string>%pkgroot%/Applications/%app_name%</string>
+ 			</dict>
+-- 
+2.17.1
+

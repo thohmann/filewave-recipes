@@ -64,10 +64,6 @@
 					<string>fw_app_bundle_id</string>
 					<key>CFBundleShortVersionString</key>
 					<string>fw_app_version</string>
-					<!--
-					<key>LSMinimumSystemVersion</key>
-					<string>fw_app_minsysversion</string>
-					-->
 				</dict>
 			</dict>
 			<key>Processor</key>
@@ -89,10 +85,13 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
+<<<<<<< HEAD
 				<key>fw_app_minsysversion</key>
 				<string>10</string>
+=======
+>>>>>>> 850bf204de53563d74130edfe8ac4a2f17c15702
 				<key>fw_fileset_name</key>
-				<string>%NAME% %fw_app_version% ab macOS %fw_app_minsysversion% (Programm)</string>
+				<string>%NAME% %fw_app_version% ab macOS 10.x (Programm)</string>
 				<key>fw_import_source</key>
 				<string>%pkgroot%/Applications/%app_name%</string>
 			</dict>
