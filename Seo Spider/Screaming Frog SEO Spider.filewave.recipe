@@ -90,7 +90,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>fw_app_minsysversion</key>
-				<string>10.x</string>
+				<string>10</string>
 				<key>fw_fileset_name</key>
 				<string>%NAME% %fw_app_version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
