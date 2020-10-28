@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads the latest Burn.app as zip and imports into FileWave.</string>
 	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.AffinityPhoto</string>
+	<string>com.github.thohmann.filewave.Burn</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
