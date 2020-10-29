@@ -3,61 +3,33 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the latest version of Sigil, creates a fileset, and copies it into your FileWave Server.</string>
+	<string>Downloads the latest Sigil.app as zip and imports into FileWave.</string>
 	<key>Identifier</key>
 	<string>com.github.thohmann.filewave.Sigil</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
 		<string>Sigil</string>
+        <key>fw_destination_root</key>
+        <string>/Applications/%NAME%.app</string>
 	</dict>
 	<key>MinimumVersion</key>
-	<string>1.0.1</string>
+	<string>0.2.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.foigus.download.Sigil</string>
+	<string>com.github.thohmann.download.Sigil</string>
 	<key>Process</key>
 	<array>
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>dmg_path</key>
-				<string>%pathname%</string>
-			</dict>
-			<key>Processor</key>
-			<string>AppDmgVersioner</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>pkgdirs</key>
-				<dict>
-					<key>Applications</key>
-					<string>0775</string>
-				</dict>
-				<key>pkgroot</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%</string>
-			</dict>
-			<key>Processor</key>
-			<string>PkgRootCreator</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
-				<key>destination_path</key>
-				<string>%pkgroot%/Applications/%app_name%</string>
-				<key>source_path</key>
-				<string>%pathname%/%app_name%</string>
-			</dict>
-			<key>Processor</key>
-			<string>Copier</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
 				<key>info_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
 				<key>plist_keys</key>
 				<dict>
+					<key>CFBundleIdentifier</key>
+					<string>fw_app_bundle_id</string>
+					<key>CFBundleShortVersionString</key>
+					<string>fw_app_version</string>
 					<key>LSMinimumSystemVersion</key>
 					<string>fw_app_minsysversion</string>
 				</dict>
@@ -69,7 +41,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
 				<key>user</key>
 				<string>root</string>
 				<key>group</key>
@@ -81,16 +53,10 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>fw_app_bundle_id</key>
-				<string>%bundleid%</string>
-				<key>fw_app_version</key>
-				<string>%version%</string>
-				<key>fw_destination_root</key>
-				<string>/Applications/%NAME%.app</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% %version% ab macOS %fw_app_minsysversion% (Programm)</string>
+				<string>%NAME% %fw_app_version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
@@ -99,7 +65,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
 				<key>user</key>
 				<string>me</string>
 				<key>group</key>
