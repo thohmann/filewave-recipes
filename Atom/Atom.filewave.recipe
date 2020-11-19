@@ -3,27 +3,27 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the latest Sigil.app as zip and imports into FileWave.</string>
+	<string>Downloads the latest Atom.app as zip and imports into FileWave.</string>
 	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.Sigil</string>
+	<string>com.github.thohmann.filewave.Atom</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
-		<string>Sigil</string>
+		<string>Atom</string>
         <key>fw_destination_root</key>
         <string>/Applications/%NAME%.app</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.2.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.thohmann.download.Sigil</string>
+	<string>io.github.hjuutilainen.download.Atom</string>
 	<key>Process</key>
 	<array>
 		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>info_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/Atom/%NAME%.app</string>
 				<key>plist_keys</key>
 				<dict>
 					<key>CFBundleIdentifier</key>
@@ -41,7 +41,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/Atom/%NAME%.app</string>
 				<key>user</key>
 				<string>root</string>
 				<key>group</key>
@@ -56,7 +56,7 @@
 				<key>fw_fileset_name</key>
 				<string>%NAME% %fw_app_version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/Atom/%NAME%.app</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
@@ -65,7 +65,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/Atom/%NAME%.app</string>
 				<key>user</key>
 				<string>me</string>
 				<key>group</key>
