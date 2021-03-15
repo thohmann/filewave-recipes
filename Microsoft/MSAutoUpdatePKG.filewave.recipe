@@ -28,8 +28,6 @@
 				<string>%NAME% %fw_app_version% (PKG)</string>
 				<key>fw_import_source</key>
 				<string>%pkg_path%</string>
-				<key>fw_fileset_group</key>
-				<string>#Microsoft</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
