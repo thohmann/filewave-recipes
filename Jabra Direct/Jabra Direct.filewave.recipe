@@ -47,6 +47,17 @@
 			<key>Arguments</key>
 			<dict>
 				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/components/Applications/</string>
+				<key>pkg_payload_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack/JabraFirmwareUpdateSetup.pkg/Payload</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>PkgPayloadUnpacker</string>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
 				<string>%RECIPE_CACHE_DIR%/components/Applications/Jabra Direct.app</string>
 				<key>pkg_payload_path</key>
 				<string>%RECIPE_CACHE_DIR%/unpack/JabraDirectSetup.unsigned.pkg/Payload</string>
