@@ -16,7 +16,7 @@
 	<key>MinimumVersion</key>
 	<string>0.3.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.hansen-m.download.FileZilla</string>
+	<string>com.github.keeleysam.recipes.FileZilla.download</string>
 	<key>Process</key>
 	<array>
 		<dict>
