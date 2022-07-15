@@ -13,12 +13,12 @@
         <key>fw_destination_root</key>
         <string>/Applications/%NAME%.app</string>
         <key>os</key>
-		<string>mac</string>
+		<string>mac-universal</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.3.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.ygini.download.Mattermost</string>
+	<string>com.github.peshay.download.Mattermost</string>
 	<key>Process</key>
 	<array>
 		<dict>
