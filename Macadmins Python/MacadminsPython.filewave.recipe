@@ -64,8 +64,6 @@
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>fw_fileset_group</key>
-				<string>#Labor Revisionen</string>
 				<key>fw_app_bundle_id</key>
 				<string>com.github.macadmins.managedpython</string>
 				<key>fw_app_version</key>
