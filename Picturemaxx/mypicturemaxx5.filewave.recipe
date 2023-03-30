@@ -88,7 +88,7 @@
 				<key>fw_name</key>
 				<string>my-picturemaxx</string>
 				<key>fw_destination_root</key>
-				<string>/Applications/%app_name%.app</string>
+				<string>/Applications/%app_name%</string>
 				<key>fw_fileset_name</key>
 				<string>%fw_name% %fw_app_version% ab macOS 10 (Programm)</string>
 				<key>fw_import_source</key>
