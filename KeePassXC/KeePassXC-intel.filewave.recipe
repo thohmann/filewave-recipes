@@ -94,7 +94,7 @@
 				<key>fw_app_version</key>
 				<string>%version%</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% %version% ab macOS 10 intel (Programm)</string>
+				<string>%NAME% %version% ab macOS 10 Intel (Programm)</string>
 				<key>fw_import_source</key>
 				<string>%pkgroot%/Applications/%NAME%.app</string>
 			</dict>
