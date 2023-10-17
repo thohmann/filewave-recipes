@@ -84,13 +84,13 @@
 			<key>Arguments</key>
 			<dict>
 				<key>fw_app_bundle_id</key>
-				<string>org.mozilla.firefox</string>
+				<string>org.mozilla.firefox.%LOCALE%</string>
 				<key>fw_app_version</key>
 				<string>%version%</string>
 				<key>fw_destination_root</key>
 				<string>/Applications/%NAME%.app</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% ESR %version% ab macOS %fw_app_minsysversion% (Programm)</string>
+				<string>%NAME% ESR %LOCALE% %version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
 				<string>%RECIPE_CACHE_DIR%/%NAME%/Applications/%NAME%.app</string>
 			</dict>
