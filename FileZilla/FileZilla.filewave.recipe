@@ -12,6 +12,8 @@
 		<string>FileZilla</string>
         <key>fw_destination_root</key>
         <string>/Applications/%NAME%.app</string>
+		<key>RE_PATTERN</key>
+		<string>&lt;a href=\"(?P&lt;url&gt;http[s]?.*?(?P&lt;filename&gt;FileZilla_(?P&lt;version&gt;[\d.]+)_macos-x86.*?\.tar\.bz2).*?)\"</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.3.0</string>
