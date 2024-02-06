@@ -1,4 +1,9 @@
-#!/usr/bin/env python
+#!/usr/local/autopkg/python
+
+
+from autopkglib import Processor, ProcessorError
+import subprocess
+import os
 
 import requests
 import json
@@ -7,10 +12,6 @@ import base64
 from pathlib import Path
 from typing import Optional, Tuple
 import sys
-
-from autopkglib import Processor, ProcessorError
-import subprocess
-import os
 
 __all__ = ["FilewaveKioskImporter"]
 
