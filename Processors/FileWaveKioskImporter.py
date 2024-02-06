@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+import requests
+import json
+import re
+import base64
+from pathlib import Path
+from typing import Optional, Tuple
+import sys
+
 from autopkglib import Processor, ProcessorError
 import subprocess
 import os
