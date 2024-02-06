@@ -1,20 +1,18 @@
 #!/usr/local/autopkg/python
 
 from autopkglib import Processor, ProcessorError
-import subprocess
-import os
 
 import requests
-import json
-import re
-import base64
 from pathlib import Path
-from typing import Optional, Tuple
-import sys
+from typing import Optional
 
 class FilewaveKioskImporter(Processor):
-	'''Changes Filewave Kiosk Information'''
-
+	fw_url = 'https://filewave.burda.com/api'
+	id_tag = '{ID}'
+	kiosk_options_url = f'/payloads/internal/payloads/{id_tag}/options'
+	kiosk_icon_url = f'/payloads/internal/payloads/{id_tag}/icon'
+	api_token = 'e2I0ODQ3ZmQ3LWM0M2EtNGNmNC1hNWY3LTAxYzdhMzU1NmI3NH0='
+	
 	input_variables = {
 		'fileset_id': {
 			'required': True,
@@ -24,7 +22,7 @@ class FilewaveKioskImporter(Processor):
 			'required': True,
 			'description': 'Title shown in kiosk ',
 		},
-		'kiosk_descriptipn': {
+		'kiosk_description': {
 			'required': False,
 			'description': 'Description text shown in kiosk '
 		},
@@ -38,27 +36,21 @@ class FilewaveKioskImporter(Processor):
 	}
 	
 	def main(self):
-		fw_url = 'https://filewave.burda.com/api'
-		id_tag = '{ID}'
-		kiosk_options_url = f'/payloads/internal/payloads/{id_tag}/options'
-		kiosk_icon_url = f'/payloads/internal/payloads/{id_tag}/icon'
-		api_token = 'e2I0ODQ3ZmQ3LWM0M2EtNGNmNC1hNWY3LTAxYzdhMzU1NmI3NH0='
-		fileset_id = self.env.get('fileset_id')
-		kiosk_title = self.env.get('kiosk_title')
-		kiosk_descriptipn = self.env.get('kiosk_descriptipn')
-		kiosk_icon_path = self.env.get('kiosk_icon_path')
+			fileset_id = self.env.get('fileset_id')
+			kiosk_title = self.env.get('kiosk_title')
+			kiosk_description = self.env.get('kiosk_description')
+			kiosk_icon_path = Path(self.env.get('kiosk_icon_path'))
 		
-		retcode_options = set_kiosk_options(fileset_id, kiosk_title, kiosk_descriptipn)
-		if not retcode_options:
-			raise ProcessorError("Error: Couldn’t set kiosk options.")
-			
-		retcode_icon = set_kiosk_icon(fileset_id, kiosk_icon_path)
-		if not retcode_icon:
-			raise ProcessorError("Error: Couldn’t set kiosk icon.")
-		return
-	
+			retcode_options = self.set_kiosk_options(fileset_id, kiosk_title, kiosk_description)
+			if not retcode_options:
+				raise ProcessorError("Error: Couldn’t set kiosk options.")
+				
+			retcode_icon = self.set_kiosk_icon(fileset_id, kiosk_icon_path)
+			if not retcode_icon:
+				raise ProcessorError("Error: Couldn’t set kiosk icon.")
+				
 	def get_fw_url(self, suffix: str, id: str) -> str:
-		return f'{fw_url}{suffix}'.replace(id_tag, id)
+		return f'{self.fw_url}{suffix}'.replace(self.id_tag, id)
 	
 	def set_kiosk_icon(self, id: str, icon_path: Path) -> bool:
 		image_content_types_and_suffix = {
@@ -89,8 +81,8 @@ class FilewaveKioskImporter(Processor):
 		return True
 	
 	def set_kiosk_options(self, id: str, title: str, description: str) -> bool:
-		request_url = get_fw_url(kiosk_options_url, id)
-		request_headers = {'Authorization': api_token, 'Content-Type': 'application/json'}
+		request_url = self.get_fw_url(self.kiosk_options_url, id)
+		request_headers = {'Authorization': self.api_token, 'Content-Type': 'application/json'}
 		body = {'kiosk_title': title, 'kiosk_description': description}
 		
 		response = requests.patch(url=request_url, headers=request_headers, json=body, timeout=15)
