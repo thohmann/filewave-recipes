@@ -141,6 +141,22 @@ pkg_install
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
 		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fileset_id</key>
+				<string>%fw_fileset_id%</string>
+				<key>kiosk_title</key>
+				<string>%NAME% (Reparatur)</string>
+				<key>kiosk_descriptipn</key>
+				<string>+++ Microsoft Outlook wird heruntergeladen, deinstalliert, beendet und anschließend installiert. Per Rechtsklick steht ggf. die Funktion Neuinstallieren zur Verfügung +++</string>
+				<key>kiosk_icon_path</key>
+				<string>%RECIPE_DIR%/Icons/%NAME%.png</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.FileWaveKioskImporter/FileWaveKioskImporter</string>
+		</dict>
+		
 	</array>
 </dict>
 </plist>
