@@ -89,6 +89,8 @@ class FileWaveKioskImporter(Processor):
 		
 		response = requests.patch(url=request_url, headers=request_headers, json=body, timeout=15)
 		if response.status_code != 200:
+			import curlify
+			print(curlify.to_curl(response.request))
 			print(f'Error code: {response.status_code}. Content: {response.content}')
 			return False
 		
