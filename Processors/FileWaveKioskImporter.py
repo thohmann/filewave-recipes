@@ -6,7 +6,7 @@ import requests
 from pathlib import Path
 from typing import Optional
 
-class FilewaveKioskImporter(Processor):
+class FileWaveKioskImporter(Processor):
 	fw_url = 'https://filewave.burda.com/api'
 	id_tag = '{ID}'
 	kiosk_options_url = f'/payloads/internal/payloads/{id_tag}/options'
