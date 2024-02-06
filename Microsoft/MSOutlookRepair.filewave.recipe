@@ -3,13 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads and installs the current release version of MSTeams PKG and imports into FileWave</string>
+	<string>Downloads and installs the current release version of MSOutlook PKG and imports into FileWave</string>
 	<key>Identifier</key>
 	<string>com.github.thohmann.filewave.MicrosoftOutlookRepair</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
 		<string>Microsoft Outlook</string>
+		<key>alternative_name</key>
+		<string>microsoft_outlook</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>1.0.1</string>
@@ -39,7 +41,7 @@
 				<key>source_pkg</key>
 				<string>%pkg_path%</string>
 				<key>pkg_path</key>
-				<string>%pkgroot%/Microsoft_Outlook_%version%.pkg</string>
+				<string>%pkgroot%/%alternative_name%_%version%.pkg</string>
 			</dict>
 		</dict>
 		<dict>
@@ -48,7 +50,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>file_path</key>
-				<string>%pkgroot%/Scripts/activate_repair_outlook.sh</string>
+				<string>%pkgroot%/Scripts/activate_%alternative_name%_repair.sh</string>
 				<key>file_mode</key>
 				<string>0755</string>
 				<key>file_content</key>
@@ -109,12 +111,12 @@ pkg_install() {
 }
 
 #Variablen
-app_name="Microsoft Outlook"
+app_name="%NAME%"
 app_path="/Applications/$app_name.app"
 target="/"
 base_path=$(basepath)
-app_installer_name="Microsoft_Outlook_.*.pkg"
-app_installer_path=$(ls -td -- "$(basepath)/"* | grep -E "$app_installer_name" | head -n 1)
+app_installer_name="%alternative_name%_.*.pkg"
+app_installer_path=$(ls -td -- "$(basepath)/"* | grep -Ei "$app_installer_name" | head -n 1)
 
 #MAIN
 apps_delete "$app_path"
@@ -128,7 +130,7 @@ pkg_install
 			<key>Arguments</key>
 			<dict>
 				<key>fw_app_bundle_id</key>
-				<string>com.microsoft.repair.outlook</string>
+				<string>com.microsoft.repair.%alternative_name%</string>
 				<key>fw_app_version</key>
 				<string>%version%</string>
 				<key>fw_fileset_name</key>
@@ -136,7 +138,7 @@ pkg_install
 				<key>fw_import_source</key>
 				<string>%pkgroot%</string>
 				<key>fw_destination_root</key>
-				<string>/var/scripts/.fw_common/Microsoft/Microsoft Outlook</string>
+				<string>/var/scripts/.fw_common/Microsoft/%NAME%</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
@@ -149,7 +151,7 @@ pkg_install
 				<key>kiosk_title</key>
 				<string>%NAME% (Reparatur)</string>
 				<key>kiosk_description</key>
-				<string>Microsoft Outlook wird heruntergeladen, deinstalliert, beendet und anschließend installiert. Per Rechtsklick steht ggf. die Funktion Neuinstallieren zur Verfügung</string>
+				<string>%NAME% wird heruntergeladen, deinstalliert, beendet und anschließend installiert. Per Rechtsklick steht ggf. die Funktion Neuinstallieren zur Verfügung</string>
 				<key>kiosk_icon_path</key>
 				<string>%RECIPE_DIR%/Icons/%NAME%.png</string>
 			</dict>
