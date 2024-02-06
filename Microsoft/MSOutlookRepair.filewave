@@ -148,8 +148,8 @@ pkg_install
 				<string>%fw_fileset_id%</string>
 				<key>kiosk_title</key>
 				<string>%NAME% (Reparatur)</string>
-				<key>kiosk_descriptipn</key>
-				<string>+++ Microsoft Outlook wird heruntergeladen, deinstalliert, beendet und anschließend installiert. Per Rechtsklick steht ggf. die Funktion Neuinstallieren zur Verfügung +++</string>
+				<key>kiosk_description</key>
+				<string>Microsoft Outlook wird heruntergeladen, deinstalliert, beendet und anschließend installiert. Per Rechtsklick steht ggf. die Funktion Neuinstallieren zur Verfügung</string>
 				<key>kiosk_icon_path</key>
 				<string>%RECIPE_DIR%/Icons/%NAME%.png</string>
 			</dict>
