@@ -40,14 +40,18 @@ class FileWaveKioskImporter(Processor):
 			kiosk_title = self.env.get('kiosk_title')
 			kiosk_description = self.env.get('kiosk_description')
 			kiosk_icon_path = Path(self.env.get('kiosk_icon_path'))
+			
+			if re.match('^[0-9]*$', fileset_id):
 		
-			retcode_options = self.set_kiosk_options(fileset_id, kiosk_title, kiosk_description)
-			if not retcode_options:
-				raise ProcessorError("Error: Couldn’t set kiosk options.")
-				
-			retcode_icon = self.set_kiosk_icon(fileset_id, kiosk_icon_path)
-			if not retcode_icon:
-				raise ProcessorError("Error: Couldn’t set kiosk icon.")
+				retcode_options = self.set_kiosk_options(fileset_id, kiosk_title, kiosk_description)
+				if not retcode_options:
+					raise ProcessorError("Error: Couldn’t set kiosk options.")
+					
+				retcode_icon = self.set_kiosk_icon(fileset_id, kiosk_icon_path)
+				if not retcode_icon:
+					raise ProcessorError("Error: Couldn’t set kiosk icon.")
+			else:
+				print("No Fileset ID found, skipping import of kiosk options and icon")
 				
 	def get_fw_url(self, suffix: str, id: str) -> str:
 		return f'{self.fw_url}{suffix}'.replace(self.id_tag, id)
