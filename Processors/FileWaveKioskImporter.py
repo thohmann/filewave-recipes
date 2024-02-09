@@ -2,6 +2,7 @@
 
 from autopkglib import Processor, ProcessorError
 
+import re
 import requests
 from pathlib import Path
 from typing import Optional
