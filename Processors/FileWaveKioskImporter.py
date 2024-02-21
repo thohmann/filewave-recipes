@@ -48,7 +48,9 @@ class FileWaveKioskImporter(Processor):
 			kiosk_description = self.env.get('kiosk_description')
 			kiosk_icon_path = Path(self.env.get('kiosk_icon_path'))
 			self.api_token = self.env.get('FW_API_TOKEN', None),
-			print(self.api_token)
+			if isinstance(self.api_token, tuple):
+				self.api_token = self.api_token[0]
+				
 			if re.match('^[0-9]*$', fileset_id):
 		
 				retcode_options = self.set_kiosk_options(fileset_id, kiosk_title, kiosk_description)
