@@ -47,7 +47,7 @@ class FileWaveKioskImporter(Processor):
 			kiosk_title = self.env.get('kiosk_title')
 			kiosk_description = self.env.get('kiosk_description')
 			kiosk_icon_path = Path(self.env.get('kiosk_icon_path'))
-			api_token = self.env.get('FW_API_TOKEN'),
+			self.api_token = self.env.get('FW_API_TOKEN'),
 			
 			if re.match('^[0-9]*$', fileset_id):
 		
