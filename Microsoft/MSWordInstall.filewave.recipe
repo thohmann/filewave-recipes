@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads and installs the current release version of MSWord and imports into FileWave</string>
+	<key>Identifier</key>
+	<string>com.github.thohmann.filewave.MicrosoftWordInstall</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>Microsoft Word</string>
+		<key>alternative_name</key>
+		<string>microsoft_word</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.1</string>
+	<key>ParentRecipe</key>
+	<string>com.github.rtrouton.pkg.microsoftword365</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+					<key>Scripts</key>
+					<string>0775</string>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/fileset</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>PkgCopier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>source_pkg</key>
+				<string>%pkg_path%</string>
+				<key>pkg_path</key>
+				<string>%pkgroot%/%alternative_name%_%version%.pkg</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>file_path</key>
+				<string>%pkgroot%/Scripts/activate_%alternative_name%_install.sh</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_content</key>
+				<string>#!/bin/bash
+
+#Functions
+app_running(){
+	
+	# Potential App Strings for MS Apps:
+	# ----------------------
+	#  "Microsoft Excel"
+	#  "Microsoft Word"
+	#  "Microsoft PowerPoint"
+	#  "Microsoft Outlook"
+	#  "Microsoft OneNote"
+	#  "OneDrive"
+	
+	local app; app="$1"
+	if [[ $(pgrep "$app") ]];then
+		echo "WARNING: $app is running. Exit and trying again later."
+		exit 99
+	fi
+}
+
+basepath() {
+	if [[ $1 = /* ]];then
+		rp="$1"
+	else
+		rp="$PWD/${1#./}"
+	fi
+	echo "$(dirname "$rp")"
+}
+
+pkg_install() {
+	echo "Info: Starting installation..."
+	if [[ ! -e "$app_installer_path" ]]; then
+		echo "ERROR: Installer $app_installer_path  is missing, exit."
+		exit 1
+	fi
+	/usr/sbin/installer -pkg "$app_installer_path" -target "$target"
+	exit_code=$?
+	echo "Info: Install finished ($exit_code)"
+	return $exit_code
+}
+
+#Variablen
+app_name="%NAME%"
+target="/"
+base_path=$(basepath)
+app_installer_name="%alternative_name%_.*.pkg"
+app_installer_path=$(ls -td -- "$(basepath)/"* | grep -E "$app_installer_name" | head -n 1)
+
+#MAIN
+app_running "$app_name"
+pkg_install
+				</string>
+				<key>fw_fileset_activation_script</key>
+				<string>%file_path%</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fw_app_bundle_id</key>
+				<string>com.microsoft.install.%alternative_name%</string>
+				<key>fw_app_version</key>
+				<string>%version%</string>
+				<key>fw_fileset_name</key>
+				<string>%NAME% %fw_app_version% (Installation)</string>
+				<key>fw_import_source</key>
+				<string>%pkgroot%</string>
+				<key>fw_destination_root</key>
+				<string>/var/scripts/.fw_common/Microsoft/%NAME%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
