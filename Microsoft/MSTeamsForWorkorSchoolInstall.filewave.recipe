@@ -10,6 +10,8 @@
 	<dict>
 		<key>NAME</key>
 		<string>Microsoft Teams (work or school)</string>
+		<key>APP_BUNDLE_ID</key>
+		<string>com.microsoft.teams2</string>
 		<key>alternative_name</key>
 		<string>microsoft_teams_workorschool</string>
 	</dict>
@@ -59,16 +61,23 @@
 #Functions
 app_running(){
 	
-	# Potential App Strings for MS Apps:
+	# Potential BundleID Strings for MS Teams Apps:
 	# ----------------------
-	#  "/Applications/Microsoft Teams Classic.app"
-	#  "/Applications/Microsoft Teams (work or school).app"
+	#  "com.microsoft.teams"
+	#  "com.microsoft.teams2"
 	
 	local app; app="$1"
-	if [[ $(pgrep "$app") ]];then
+	local app_id; app_id="$2"
+	
+	if [[ ! -e "/usr/local/bin/bigrep" ]]; then
+		echo "Error: bigrep binary is missing. Exit."
+		exit 1
+	fi
+	if [[ $(/usr/local/bin/bigrep "$app_id") ]];then
 		echo "WARNING: $app is running. Exit and trying again later."
 		exit 99
 	fi
+
 }
 
 basepath() {
@@ -94,13 +103,14 @@ pkg_install() {
 
 #Variablen
 app_name="%NAME%"
+app_bundle_id="%APP_BUNDLE_ID%"
 target="/"
 base_path=$(basepath)
 app_installer_name="%alternative_name%_.*.pkg"
 app_installer_path=$(ls -td -- "$(basepath)/"* | grep -E "$app_installer_name" | head -n 1)
 
 #MAIN
-app_running "$app_name"
+app_running "$app_name" "$app_bundle_id"
 pkg_install
 				</string>
 				<key>fw_fileset_activation_script</key>
