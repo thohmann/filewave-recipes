@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads and installs the current release version of OneDrive and imports into FileWave</string>
 	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.MicrosoftOneNoteInstall</string>
+	<string>com.github.thohmann.filewave.MicrosoftOneDriveInstall</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>

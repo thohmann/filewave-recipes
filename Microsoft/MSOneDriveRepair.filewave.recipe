@@ -5,7 +5,7 @@
 	<key>Description</key>
 	<string>Downloads and installs the current release version of OneDrive PKG and imports into FileWave</string>
 	<key>Identifier</key>
-	<string>com.github.thohmann.filewave.MicrosoftOneNoteRepair</string>
+	<string>com.github.thohmann.filewave.MicrosoftOneDriveRepair</string>
 	<key>Input</key>
 	<dict>
 		<key>NAME</key>
