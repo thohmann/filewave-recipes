@@ -142,7 +142,7 @@ pkg_install
 				<key>fileset_id</key>
 				<string>%fw_fileset_id%</string>
 				<key>kiosk_title</key>
-				<string>%NAME% (Reparatur)</string>
+				<string>%NAME% (Reparatur/Installation)</string>
 				<key>kiosk_description</key>
 				<string>%NAME% wird heruntergeladen, deinstalliert, beendet und anschließend installiert. Per Rechtsklick steht ggf. die Funktion Neuinstallieren zur Verfügung</string>
 				<key>kiosk_icon_path</key>
