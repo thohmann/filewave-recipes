@@ -12,20 +12,46 @@
 	<dict>
 		<key>NAME</key>
 		<string>TeamViewerQS</string>
-		<key>fw_destination_root</key>
-		<string>/Applications/Utilities/%NAME%.app</string>
+		<key>APP_NAME</key>
+		<string>%NAME%.app</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.3.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.thohmann.download.teamviewerqsburda</string>
+	<string>io.github.hjuutilainen.download.TeamViewerQS</string>
 	<key>Process</key>
 	<array>
 		<dict>
 			<key>Arguments</key>
 			<dict>
+				<key>pkgdirs</key>
+				<dict>
+					<key>Applications/Utilities</key>
+					<string>0775</string>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/fileset</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>destination_path</key>
+				<string>%pkgroot%/Applications/Utilities/%APP_NAME%</string>
+				<key>source_path</key>
+				<string>%pathname%/%APP_NAME%</string>
+			</dict>
+			<key>Processor</key>
+			<string>Copier</string>
+		</dict>
+
+		<dict>
+			<key>Arguments</key>
+			<dict>
 				<key>info_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%pkgroot%/Applications/Utilities/%APP_NAME%</string>
 				<key>plist_keys</key>
 				<dict>
 					<key>CFBundleIdentifier</key>
@@ -40,10 +66,27 @@
 			<string>PlistReader</string>
 		</dict>
 		<dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>file_path</key>
+				<string>%pkgroot%/.xattr.sh</string>
+				<key>file_mode</key>
+				<string>0777</string>
+				<key>file_content</key>
+				<string>#!/bin/bash
+xattr -w com.TeamViewer.ConfigurationId idchdburmu /Applications/Utilities/%APP_NAME%
+				</string>
+				<key>fw_fileset_activation_script</key>
+				<string>%file_path%</string>
+			</dict>
+		</dict>
+		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%NAME%.app</string>
+				<string>%pkgroot%/Applications/Utilities/%APP_NAME%</string>
 				<key>user</key>
 				<string>root</string>
 				<key>group</key>
@@ -56,13 +99,15 @@
 			<key>Arguments</key>
 			<dict>
 				<key>fw_app_bundle_id</key>
-				<string>%bundle_id%.intel</string>
+				<string>%bundle_id%</string>
 				<key>fw_app_version</key>
 				<string>%version%</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% %version% ab macOS %fw_app_minsysversion% Intel (Programm)</string>
+				<string>%NAME% %version% ab macOS %fw_app_minsysversion% (Programm)</string>
 				<key>fw_import_source</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%NAME%.app</string>
+				<string>%pkgroot%</string>
+				<key>fw_destination_root</key>
+				<string>/</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
@@ -71,7 +116,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/Applications/%NAME%.app</string>
+				<string>%pkgroot%/Applications/Utilities/%APP_NAME%</string>
 				<key>user</key>
 				<string>me</string>
 				<key>group</key>
