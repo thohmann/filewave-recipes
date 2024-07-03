@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads and installs the current release version of MSTeams PKG and imports into FileWave</string>
+	<key>Identifier</key>
+	<string>com.github.thohmann.filewave.MicrosoftTeamsRepair</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>Microsoft Teams</string>
+		<key>alternative_name</key>
+		<string>microsoft_teams</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>1.0.1</string>
+	<key>ParentRecipe</key>
+	<string>com.github.rtrouton.pkg.microsoftteams</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict>
+					<key>Scripts</key>
+					<string>0775</string>
+				</dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/fileset</string>
+			</dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>PkgCopier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>source_pkg</key>
+				<string>%pkg_path%</string>
+				<key>pkg_path</key>
+				<string>%pkgroot%/%alternative_name%_%version%.pkg</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>file_path</key>
+				<string>%pkgroot%/Scripts/activate_%alternative_name%_repair.sh</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_content</key>
+				<string>#!/bin/bash
+
+#Functions
+apps_delete(){
+	
+	# Potential App paths for Teams Apps:
+	# ----------------------
+	#  "/Applications/Microsoft Teams.app"
+		
+	local app; app="$1"
+	if [[ -n "$app" ]];then
+		if [[ -e "$app" ]];then
+			echo -n "deleting $app..."
+			rm -R "$app"
+			if [[ $? -eq 0 ]];then
+				echo "done"
+			else
+				echo "error"
+			fi
+	
+		fi
+	else
+		echo "App not defined! Exit 1"
+		exit 1
+	fi
+	
+}
+
+basepath() {
+	if [[ $1 = /* ]];then
+		rp="$1"
+	else
+		rp="$PWD/${1#./}"
+	fi
+	echo "$(dirname "$rp")"
+}
+
+pkg_install() {
+	echo "Info: Starting installation..."
+	if [[ ! -e "$app_installer_path" ]]; then
+		echo "ERROR: Installer $app_installer_path is missing, exit."
+		exit 1
+	fi
+	/usr/sbin/installer -pkg "$app_installer_path" -target "$target"
+	exit_code=$?
+	echo "Info: Install finished ($exit_code)"
+	return $exit_code
+}
+
+#Variablen
+app_name="%NAME%"
+app_path="/Applications/$app_name.app"
+target="/"
+base_path=$(basepath)
+app_installer_name="%alternative_name%_.*.pkg"
+app_installer_path=$(ls -td -- "$(basepath)/"* | grep -Ei "$app_installer_name" | head -n 1)
+
+#MAIN
+apps_delete "$app_path"
+pkg_install
+				</string>
+				<key>fw_fileset_activation_script</key>
+				<string>%file_path%</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fw_app_bundle_id</key>
+				<string>com.microsoft.repair.%alternative_name%</string>
+				<key>fw_app_version</key>
+				<string>%version%</string>
+				<key>fw_fileset_name</key>
+				<string>%NAME% %fw_app_version% (Reparatur)</string>
+				<key>fw_import_source</key>
+				<string>%pkgroot%</string>
+				<key>fw_destination_root</key>
+				<string>/var/scripts/.fw_common/Microsoft/%NAME%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+		</dict>
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fileset_id</key>
+				<string>%fw_fileset_id%</string>
+				<key>kiosk_title</key>
+				<string>%NAME% (Reparatur)</string>
+				<key>kiosk_description</key>
+				<string>%NAME% wird heruntergeladen, deinstalliert, beendet und anschließend installiert. Per Rechtsklick steht ggf. die Funktion Neuinstallieren zur Verfügung</string>
+				<key>kiosk_icon_path</key>
+				<string>%RECIPE_DIR%/Icons/%NAME%.png</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.FileWaveKioskImporter/FileWaveKioskImporter</string>
+		</dict>
+		
+	</array>
+</dict>
+</plist>
