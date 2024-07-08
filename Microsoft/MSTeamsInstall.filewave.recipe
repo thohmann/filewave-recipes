@@ -101,6 +101,18 @@ pkg_install() {
 	return $exit_code
 }
 
+delete_old_teams(){
+	teams_app_path="/Applications/Microsoft Teams.app"
+	if [[ -d "$teams_app_path" ]]; then
+		teams_version="$(defaults read "$teams_app_path/Contents/Info.plist" CFBundleShortVersionString)"
+		#echo "$teams_version"
+		if [[ "$teams_version" =~ "1.00" ]]; then
+			echo "deleting old teams (version $teams_version)"
+			rm -rf "$teams_app_path"
+		fi
+	fi
+}
+
 #Variablen
 app_name="%NAME%"
 app_bundle_id="%APP_BUNDLE_ID%"
@@ -111,6 +123,7 @@ app_installer_path=$(ls -td -- "$(basepath)/"* | grep -E "$app_installer_name" |
 
 #MAIN
 app_running "$app_name" "$app_bundle_id"
+delete_old_teams
 pkg_install
 				</string>
 				<key>fw_fileset_activation_script</key>
