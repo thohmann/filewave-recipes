@@ -9,7 +9,7 @@
 	<key>Input</key>
 	<dict>
 		<key>DOWNLOAD_URL</key>
-		<string>https://www.my-picturemaxx.com/files/Downloads/my-picturemaxx-5/setup-my-picturemaxx-5_mac-universal.dmg</string>
+		<string>https://mypm-downloads.picturemaxx.com/setup-my-picturemaxx-5.dmg</string>
 		<key>NAME</key>
 		<string>my-picturemaxx-5</string>
 	</dict>
