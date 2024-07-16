@@ -60,9 +60,7 @@
 				<dict>
 					<key>CFBundleIdentifier</key>
 					<string>fw_app_bundle_id</string>
-					<key>CFBundleShortVersionString</key>
-					<string>fw_app_version_short</string>
-					<key>CFBundleGetInfoString</key>
+					<key>CFBundleVersion</key>
 					<string>fw_app_version</string>
 				</dict>
 			</dict>
