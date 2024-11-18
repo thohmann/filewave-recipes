@@ -18,17 +18,19 @@
 	<key>MinimumVersion</key>
 	<string>0.3.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.killahquam.download.slack</string>
+	<string>com.github.rtrouton.download.SlackUniversal</string>
 	<key>Process</key>
 	<array>
 		<dict>
+			<key>Processor</key>
+			<string>FlatPkgUnpacker</string>
 			<key>Arguments</key>
 			<dict>
-				<key>dmg_path</key>
+				<key>flat_pkg_path</key>
 				<string>%pathname%</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack</string>
 			</dict>
-			<key>Processor</key>
-			<string>AppDmgVersioner</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -45,15 +47,17 @@
 			<string>PkgRootCreator</string>
 		</dict>
 		<dict>
+			<key>Processor</key>
+			<string>PkgPayloadUnpacker</string>
 			<key>Arguments</key>
 			<dict>
+				<key>pkg_payload_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack/Payload</string>
 				<key>destination_path</key>
-				<string>%pkgroot%/%NAME%.app</string>
-				<key>source_path</key>
-				<string>%pathname%/%app_name%</string>
+				<string>%pkgroot%</string>
+				<key>purge_destination</key>
+				<true/>
 			</dict>
-			<key>Processor</key>
-			<string>Copier</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
