@@ -163,12 +163,30 @@
 				<key>file_content</key>
 				<string>#!/bin/bash
 
-# LibreOffice Universal Installer
+# LibreOffice Universal Update Installer
+# Only updates if LibreOffice is already installed
+
 set -e
+
+# Check if LibreOffice is already installed
+if [ ! -d "/Applications/LibreOffice.app" ]; then
+    echo "LibreOffice is not installed. Skipping update."
+    echo "Use the install package to install LibreOffice for the first time."
+    # Cleanup installer files if they exist
+    INSTALLER_DIR="/tmp/libreoffice_universal_installer"
+    if [ -d "$INSTALLER_DIR" ]; then
+        rm -rf "$INSTALLER_DIR"
+        echo "Installer files cleaned up."
+    fi
+    exit 0
+fi
+
+# LibreOffice found - proceed with update
+echo "LibreOffice found. Proceeding with update."
 
 INSTALLER_DIR="/tmp/libreoffice_universal_installer"
 
-echo "LibreOffice Universal Installer"
+echo "LibreOffice Universal Update Installer"
 
 # Check if installer directory exists
 if [ ! -d "$INSTALLER_DIR" ]; then
@@ -202,12 +220,10 @@ echo "Mounting LibreOffice..."
 MAIN_MOUNT=$(mktemp -d)
 hdiutil attach "$DMG_FILE" -mountpoint "$MAIN_MOUNT" -nobrowse -quiet
 
-# Install LibreOffice
-echo "Installing LibreOffice..."
-if [ -d "/Applications/LibreOffice.app" ]; then
-    echo "Removing existing LibreOffice installation..."
-    rm -rf "/Applications/LibreOffice.app"
-fi
+# Update LibreOffice
+echo "Updating LibreOffice..."
+echo "Removing existing LibreOffice installation..."
+rm -rf "/Applications/LibreOffice.app"
 cp -R "$MAIN_MOUNT/LibreOffice.app" "/Applications/"
 
 # Detect system language - try multiple methods
@@ -292,7 +308,7 @@ if [ -d "$INSTALLER_DIR" ]; then
     echo "Installer files removed from $INSTALLER_DIR"
 fi
 
-echo "Installation completed successfully!"
+echo "Update completed successfully!"
 exit 0
 </string>
 			</dict>
@@ -590,6 +606,7 @@ exit 0
 			<key>Processor</key>
 			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
 		</dict>
+
 	</array>
 </dict>
 </plist>
