@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads LibreOffice for both Intel and ARM architectures, includes German language pack detection, and creates a universal PKG installer.</string>
+	<key>Identifier</key>
+	<string>com.github.thohmann.filewave.LibreOffice</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>LibreOffice</string>
+	</dict>
+	<key>ParentRecipe</key>
+	<string>io.github.hjuutilainen.download.LibreOffice</string>
+	<key>MinimumVersion</key>
+	<string>1.0.0</string>
+	<key>Process</key>
+	<array>
+		<!-- Get version from LibreOffice -->
+		<dict>
+			<key>Processor</key>
+			<string>AppDmgVersioner</string>
+			<key>Arguments</key>
+			<dict>
+				<key>dmg_path</key>
+				<string>%pathname%</string>
+			</dict>
+		</dict>
+		<!-- Download Intel version -->
+		<dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://download.documentfoundation.org/libreoffice/stable/%match%/mac/x86_64/LibreOffice_%match%_MacOS_x86-64.dmg</string>
+				<key>filename</key>
+				<string>LibreOffice_Intel.dmg</string>
+			</dict>
+		</dict>
+		<!-- Download ARM version -->
+		<dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://download.documentfoundation.org/libreoffice/stable/%match%/mac/aarch64/LibreOffice_%match%_MacOS_aarch64.dmg</string>
+				<key>filename</key>
+				<string>LibreOffice_ARM.dmg</string>
+			</dict>
+		</dict>
+		<!-- Download German language packs -->
+		<dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://download.documentfoundation.org/libreoffice/stable/%match%/mac/x86_64/LibreOffice_%match%_MacOS_x86-64_langpack_de.dmg</string>
+				<key>filename</key>
+				<string>LibreOffice_Intel_langpack_de.dmg</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://download.documentfoundation.org/libreoffice/stable/%match%/mac/aarch64/LibreOffice_%match%_MacOS_aarch64_langpack_de.dmg</string>
+				<key>filename</key>
+				<string>LibreOffice_ARM_langpack_de.dmg</string>
+			</dict>
+		</dict>
+		<!-- Create package structure with tmp directory -->
+		<dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/payload</string>
+				<key>pkgdirs</key>
+				<dict>
+					<key>tmp</key>
+					<string>0755</string>
+					<key>tmp/libreoffice_universal_installer</key>
+					<string>0755</string>
+				</dict>
+			</dict>
+		</dict>
+		<!-- Copy Intel DMG to tmp -->
+		<dict>
+			<key>Processor</key>
+			<string>Copier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>source_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/LibreOffice_Intel.dmg</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/payload/tmp/libreoffice_universal_installer/LibreOffice_Intel.dmg</string>
+			</dict>
+		</dict>
+		<!-- Copy ARM DMG to tmp -->
+		<dict>
+			<key>Processor</key>
+			<string>Copier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>source_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/LibreOffice_ARM.dmg</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/payload/tmp/libreoffice_universal_installer/LibreOffice_ARM.dmg</string>
+			</dict>
+		</dict>
+		<!-- Copy language packs to tmp -->
+		<dict>
+			<key>Processor</key>
+			<string>Copier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>source_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/LibreOffice_Intel_langpack_de.dmg</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/payload/tmp/libreoffice_universal_installer/LibreOffice_Intel_langpack_de.dmg</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>Copier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>source_path</key>
+				<string>%RECIPE_CACHE_DIR%/downloads/LibreOffice_ARM_langpack_de.dmg</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/payload/tmp/libreoffice_universal_installer/LibreOffice_ARM_langpack_de.dmg</string>
+			</dict>
+		</dict>
+		<!-- Create scripts directory -->
+		<dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/scripts</string>
+				<key>pkgdirs</key>
+				<dict/>
+			</dict>
+		</dict>
+		<!-- Create intelligent postinstall script -->
+		<dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/scripts/postinstall</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_content</key>
+				<string>#!/bin/bash
+
+# LibreOffice Universal Installer
+set -e
+
+INSTALLER_DIR="/tmp/libreoffice_universal_installer"
+
+echo "LibreOffice Universal Installer"
+
+# Check if installer directory exists
+if [ ! -d "$INSTALLER_DIR" ]; then
+    echo "Error: Installer directory not found: $INSTALLER_DIR"
+    exit 1
+fi
+
+# Detect architecture
+ARCH=$(uname -m)
+echo "Architecture: $ARCH"
+
+if [ "$ARCH" = "arm64" ]; then
+    DMG_FILE="$INSTALLER_DIR/LibreOffice_ARM.dmg"
+    LANGPACK_FILE="$INSTALLER_DIR/LibreOffice_ARM_langpack_de.dmg"
+elif [ "$ARCH" = "x86_64" ]; then
+    DMG_FILE="$INSTALLER_DIR/LibreOffice_Intel.dmg"
+    LANGPACK_FILE="$INSTALLER_DIR/LibreOffice_Intel_langpack_de.dmg"
+else
+    echo "Error: Unsupported architecture: $ARCH"
+    exit 1
+fi
+
+# Check if required files exist
+if [ ! -f "$DMG_FILE" ]; then
+    echo "Error: LibreOffice DMG not found: $DMG_FILE"
+    exit 1
+fi
+
+# Mount main LibreOffice DMG
+echo "Mounting LibreOffice..."
+MAIN_MOUNT=$(mktemp -d)
+hdiutil attach "$DMG_FILE" -mountpoint "$MAIN_MOUNT" -nobrowse -quiet
+
+# Install LibreOffice
+echo "Installing LibreOffice..."
+if [ -d "/Applications/LibreOffice.app" ]; then
+    echo "Removing existing LibreOffice installation..."
+    rm -rf "/Applications/LibreOffice.app"
+fi
+cp -R "$MAIN_MOUNT/LibreOffice.app" "/Applications/"
+
+# Detect system language - try multiple methods
+echo "Detecting system language..."
+INSTALL_GERMAN=false
+
+# Method 1: defaults read NSGlobalDomain AppleLanguages
+LANG1=$(defaults read NSGlobalDomain AppleLanguages 2>/dev/null | head -2 | tail -1 | tr -d '", ()' | xargs || echo "")
+echo "Method 1 (AppleLanguages): '$LANG1'"
+
+# Method 2: defaults read -g AppleLocale
+LANG2=$(defaults read -g AppleLocale 2>/dev/null || echo "")
+echo "Method 2 (AppleLocale): '$LANG2'"
+
+# Method 3: Environment variable
+LANG3="$LANG"
+echo "Method 3 (LANG env): '$LANG3'"
+
+# Method 4: Check macOS system language preference
+LANG4=$(osascript -e 'tell application "System Events" to get the name of every item of (get language preferences)' 2>/dev/null | cut -d',' -f1 | xargs || echo "")
+echo "Method 4 (System Events): '$LANG4'"
+
+# Check all methods for German indicators
+for lang_check in "$LANG1" "$LANG2" "$LANG3" "$LANG4"; do
+    case "$lang_check" in
+        *de*|*De*|*DE*|*german*|*German*|*deutsch*|*Deutsch*|de_*|de-*)
+            INSTALL_GERMAN=true
+            echo "German detected in: '$lang_check'"
+            break
+            ;;
+    esac
+done
+
+# Install language pack if German is detected
+if [ "$INSTALL_GERMAN" = true ]; then
+    echo "==> German system detected - installing language pack"
+    
+    if [ -f "$LANGPACK_FILE" ]; then
+        echo "Mounting German language pack..."
+        LANG_MOUNT=$(mktemp -d)
+        hdiutil attach "$LANGPACK_FILE" -mountpoint "$LANG_MOUNT" -nobrowse -quiet
+        
+        # Find and extract language pack
+        TARBALL=$(find "$LANG_MOUNT" -name "*.tar.bz2" | head -1)
+        if [ -n "$TARBALL" ]; then
+            echo "Extracting language pack from: $(basename "$TARBALL")"
+            cd "/Applications/LibreOffice.app"
+            tar -xjf "$TARBALL"
+            # Ensure extensions directory exists
+            mkdir -p "Contents/Resources/extensions"
+            echo "German language pack installed successfully"
+        else
+            echo "Warning: Language pack tarball not found in $LANG_MOUNT"
+            ls -la "$LANG_MOUNT" || true
+        fi
+        
+        # Cleanup language pack mount
+        hdiutil detach "$LANG_MOUNT" -quiet 2>/dev/null || true
+        rm -rf "$LANG_MOUNT"
+    else
+        echo "Warning: Language pack file not found: $LANGPACK_FILE"
+    fi
+else
+    echo "==> No German language detected - skipping language pack"
+    echo "Detected languages: LANG1='$LANG1' LANG2='$LANG2' LANG3='$LANG3' LANG4='$LANG4'"
+fi
+
+# Cleanup main mount
+hdiutil detach "$MAIN_MOUNT" -quiet 2>/dev/null || true
+rm -rf "$MAIN_MOUNT"
+
+# Fix permissions and quarantine
+echo "Setting permissions and removing quarantine..."
+chown -R root:admin "/Applications/LibreOffice.app"
+chmod -R 755 "/Applications/LibreOffice.app"
+xattr -rd com.apple.quarantine "/Applications/LibreOffice.app" 2>/dev/null || true
+
+# Cleanup installer files
+echo "Cleaning up installer files..."
+if [ -d "$INSTALLER_DIR" ]; then
+    rm -rf "$INSTALLER_DIR"
+    echo "Installer files removed from $INSTALLER_DIR"
+fi
+
+echo "Installation completed successfully!"
+exit 0
+</string>
+			</dict>
+		</dict>
+		<!-- Create scripts directory for install-only package -->
+		<dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/scripts_install_only</string>
+				<key>pkgdirs</key>
+				<dict/>
+			</dict>
+		</dict>
+		<!-- Create postinstall script for install-only package (checks if app exists) -->
+		<dict>
+			<key>Processor</key>
+			<string>FileCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>file_path</key>
+				<string>%RECIPE_CACHE_DIR%/scripts_install_only/postinstall</string>
+				<key>file_mode</key>
+				<string>0755</string>
+				<key>file_content</key>
+				<string>#!/bin/bash
+
+# LibreOffice Install-Only Installer
+# Only installs if LibreOffice is NOT already present
+
+set -e
+
+# Check if LibreOffice is already installed
+if [ -d "/Applications/LibreOffice.app" ]; then
+    echo "LibreOffice is already installed. Skipping installation."
+    echo "Use the update package to update an existing installation."
+    # Cleanup installer files if they exist
+    INSTALLER_DIR="/tmp/libreoffice_universal_installer"
+    if [ -d "$INSTALLER_DIR" ]; then
+        rm -rf "$INSTALLER_DIR"
+        echo "Installer files cleaned up."
+    fi
+    exit 0
+fi
+
+# LibreOffice not found - proceed with installation
+echo "LibreOffice not found. Proceeding with installation."
+
+INSTALLER_DIR="/tmp/libreoffice_universal_installer"
+
+echo "LibreOffice Universal Installer"
+
+# Check if installer directory exists
+if [ ! -d "$INSTALLER_DIR" ]; then
+    echo "Error: Installer directory not found: $INSTALLER_DIR"
+    exit 1
+fi
+
+# Detect architecture
+ARCH=$(uname -m)
+echo "Architecture: $ARCH"
+
+if [ "$ARCH" = "arm64" ]; then
+    DMG_FILE="$INSTALLER_DIR/LibreOffice_ARM.dmg"
+    LANGPACK_FILE="$INSTALLER_DIR/LibreOffice_ARM_langpack_de.dmg"
+elif [ "$ARCH" = "x86_64" ]; then
+    DMG_FILE="$INSTALLER_DIR/LibreOffice_Intel.dmg"
+    LANGPACK_FILE="$INSTALLER_DIR/LibreOffice_Intel_langpack_de.dmg"
+else
+    echo "Error: Unsupported architecture: $ARCH"
+    exit 1
+fi
+
+# Check if required files exist
+if [ ! -f "$DMG_FILE" ]; then
+    echo "Error: LibreOffice DMG not found: $DMG_FILE"
+    exit 1
+fi
+
+# Mount main LibreOffice DMG
+echo "Mounting LibreOffice..."
+MAIN_MOUNT=$(mktemp -d)
+hdiutil attach "$DMG_FILE" -mountpoint "$MAIN_MOUNT" -nobrowse -quiet
+
+# Install LibreOffice
+echo "Installing LibreOffice..."
+cp -R "$MAIN_MOUNT/LibreOffice.app" "/Applications/"
+
+# Detect system language - try multiple methods
+echo "Detecting system language..."
+INSTALL_GERMAN=false
+
+# Method 1: defaults read NSGlobalDomain AppleLanguages
+LANG1=$(defaults read NSGlobalDomain AppleLanguages 2>/dev/null | head -2 | tail -1 | tr -d '", ()' | xargs || echo "")
+echo "Method 1 (AppleLanguages): '$LANG1'"
+
+# Method 2: defaults read -g AppleLocale
+LANG2=$(defaults read -g AppleLocale 2>/dev/null || echo "")
+echo "Method 2 (AppleLocale): '$LANG2'"
+
+# Method 3: Environment variable
+LANG3="$LANG"
+echo "Method 3 (LANG env): '$LANG3'"
+
+# Method 4: Check macOS system language preference
+LANG4=$(osascript -e 'tell application "System Events" to get the name of every item of (get language preferences)' 2>/dev/null | cut -d',' -f1 | xargs || echo "")
+echo "Method 4 (System Events): '$LANG4'"
+
+# Check all methods for German indicators
+for lang_check in "$LANG1" "$LANG2" "$LANG3" "$LANG4"; do
+    case "$lang_check" in
+        *de*|*De*|*DE*|*german*|*German*|*deutsch*|*Deutsch*|de_*|de-*)
+            INSTALL_GERMAN=true
+            echo "German detected in: '$lang_check'"
+            break
+            ;;
+    esac
+done
+
+# Install language pack if German is detected
+if [ "$INSTALL_GERMAN" = true ]; then
+    echo "==> German system detected - installing language pack"
+    
+    if [ -f "$LANGPACK_FILE" ]; then
+        echo "Mounting German language pack..."
+        LANG_MOUNT=$(mktemp -d)
+        hdiutil attach "$LANGPACK_FILE" -mountpoint "$LANG_MOUNT" -nobrowse -quiet
+        
+        # Find and extract language pack
+        TARBALL=$(find "$LANG_MOUNT" -name "*.tar.bz2" | head -1)
+        if [ -n "$TARBALL" ]; then
+            echo "Extracting language pack from: $(basename "$TARBALL")"
+            cd "/Applications/LibreOffice.app"
+            tar -xjf "$TARBALL"
+            # Ensure extensions directory exists
+            mkdir -p "Contents/Resources/extensions"
+            echo "German language pack installed successfully"
+        else
+            echo "Warning: Language pack tarball not found in $LANG_MOUNT"
+            ls -la "$LANG_MOUNT" || true
+        fi
+        
+        # Cleanup language pack mount
+        hdiutil detach "$LANG_MOUNT" -quiet 2>/dev/null || true
+        rm -rf "$LANG_MOUNT"
+    else
+        echo "Warning: Language pack file not found: $LANGPACK_FILE"
+    fi
+else
+    echo "==> No German language detected - skipping language pack"
+    echo "Detected languages: LANG1='$LANG1' LANG2='$LANG2' LANG3='$LANG3' LANG4='$LANG4'"
+fi
+
+# Cleanup main mount
+hdiutil detach "$MAIN_MOUNT" -quiet 2>/dev/null || true
+rm -rf "$MAIN_MOUNT"
+
+# Fix permissions and quarantine
+echo "Setting permissions and removing quarantine..."
+chown -R root:admin "/Applications/LibreOffice.app"
+chmod -R 755 "/Applications/LibreOffice.app"
+xattr -rd com.apple.quarantine "/Applications/LibreOffice.app" 2>/dev/null || true
+
+# Cleanup installer files
+echo "Cleaning up installer files..."
+if [ -d "$INSTALLER_DIR" ]; then
+    rm -rf "$INSTALLER_DIR"
+    echo "Installer files removed from $INSTALLER_DIR"
+fi
+
+echo "Installation completed successfully!"
+exit 0
+</string>
+			</dict>
+		</dict>
+		<!-- Create directory for final packages -->
+		<dict>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/pkg</string>
+				<key>pkgdirs</key>
+				<dict/>
+			</dict>
+		</dict>
+		<!-- Create update PKG (original behavior) -->
+		<dict>
+			<key>Processor</key>
+			<string>PkgCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_request</key>
+				<dict>
+					<key>pkgdir</key>
+					<string>%RECIPE_CACHE_DIR%/pkg</string>
+					<key>pkgname</key>
+					<string>%NAME%-Update-%version%</string>
+					<key>version</key>
+					<string>%version%</string>
+					<key>id</key>
+					<string>org.libreoffice.update</string>
+					<key>pkgroot</key>
+					<string>%RECIPE_CACHE_DIR%/payload</string>
+					<key>scripts</key>
+					<string>%RECIPE_CACHE_DIR%/scripts</string>
+					<key>chown</key>
+					<array>
+						<dict>
+							<key>path</key>
+							<string>tmp</string>
+							<key>user</key>
+							<string>root</string>
+							<key>group</key>
+							<string>wheel</string>
+						</dict>
+					</array>
+					<key>preserve_xattr</key>
+					<false/>
+				</dict>
+			</dict>
+		</dict>
+		<!-- Create Update-PKG Fileset  -->
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fw_name</key>
+				<string>%NAME%</string>
+				<key>fw_app_bundle_id</key>
+				<string>org.libreoffice.update</string>
+				<key>fw_app_version</key>
+				<string>%version%</string>
+				<key>fw_fileset_name</key>
+				<string>%fw_name% %fw_app_version% (Update-PKG)</string>
+				<key>fw_import_source</key>
+				<string>%pkg_path%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+		</dict>
+		<!-- Create install-only PKG (only installs if app not present) -->
+		<dict>
+			<key>Processor</key>
+			<string>PkgCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_request</key>
+				<dict>
+					<key>pkgdir</key>
+					<string>%RECIPE_CACHE_DIR%/pkg</string>
+					<key>pkgname</key>
+					<string>%NAME%-Install-%version%</string>
+					<key>version</key>
+					<string>%version%</string>
+					<key>id</key>
+					<string>org.libreoffice.install</string>
+					<key>pkgroot</key>
+					<string>%RECIPE_CACHE_DIR%/payload</string>
+					<key>scripts</key>
+					<string>%RECIPE_CACHE_DIR%/scripts_install_only</string>
+					<key>chown</key>
+					<array>
+						<dict>
+							<key>path</key>
+							<string>tmp</string>
+							<key>user</key>
+							<string>root</string>
+							<key>group</key>
+							<string>wheel</string>
+						</dict>
+					</array>
+					<key>preserve_xattr</key>
+					<false/>
+				</dict>
+			</dict>
+		</dict>
+		<!-- Create Install-PKG Fileset  -->
+		<dict>
+			<key>Arguments</key>
+			<dict>
+				<key>fw_name</key>
+				<string>%NAME%</string>
+				<key>fw_app_bundle_id</key>
+				<string>org.libreoffice.install</string>
+				<key>fw_app_version</key>
+				<string>%version%</string>
+				<key>fw_fileset_name</key>
+				<string>%fw_name% %fw_app_version% (Install-PKG)</string>
+				<key>fw_import_source</key>
+				<string>%pkg_path%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
