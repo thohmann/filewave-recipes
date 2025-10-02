@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Description</key>
+    <string>Downloads the latest CrowdStrike Falcon sensor based on the configured Sensor Update Policy.
+
+Credentials können entweder:
+1. In der Keychain gespeichert werden (empfohlen):
+   python crowdstrike_downloader.py --setup-credentials
+   
+2. Oder als Input-Variablen angegeben werden:
+   autopkg run CrowdStrikeFalcon.download --key client_id=YOUR_ID --key client_secret=YOUR_SECRET
+
+Die Keychain-Methode ist sicherer und für Automation geeignet.
+</string>
+    <key>Identifier</key>
+    <string>com.github.thohmann.download.CrowdStrikeFalcon</string>
+    <key>Input</key>
+    <dict>
+        <key>NAME</key>
+        <string>CrowdStrikeFalcon</string>
+        <key>CLOUD</key>
+        <string>eu-1</string>
+        <key>PLATFORM</key>
+        <string>Mac</string>
+        <key>POLICY_NAME</key>
+        <string>platform_default</string>
+    </dict>
+    <key>MinimumVersion</key>
+    <string>2.0</string>
+    <key>Process</key>
+    <array>
+        <dict>
+            <key>Processor</key>
+            <string>CrowdStrikeFalconDownloader</string>
+            <key>Arguments</key>
+            <dict>
+                <key>cloud</key>
+                <string>%CLOUD%</string>
+                <key>platform</key>
+                <string>%PLATFORM%</string>
+                <key>policy_name</key>
+                <string>%POLICY_NAME%</string>
+            </dict>
+        </dict>
+        <dict>
+            <key>Processor</key>
+            <string>EndOfCheckPhase</string>
+        </dict>
+        <dict>
+            <key>Processor</key>
+            <string>CodeSignatureVerifier</string>
+            <key>Arguments</key>
+            <dict>
+                <key>input_path</key>
+                <string>%pathname%</string>
+                <key>expected_authority_names</key>
+                <array>
+                    <string>Developer ID Installer: CrowdStrike Inc. (X9E956P446)</string>
+                    <string>Developer ID Certification Authority</string>
+                    <string>Apple Root CA</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
+</dict>
+</plist>
