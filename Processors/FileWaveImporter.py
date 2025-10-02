@@ -29,7 +29,7 @@ from autopkglib import Processor, ProcessorError
 # the search path.
 sys.path.append(os.path.dirname(__file__))
 from CommandLine import FWAdminClient
-from FWTool import COMMON_FILEWAVE_VARIABLES, FWTool
+from .FWTool import COMMON_FILEWAVE_VARIABLES, FWTool
 
 
 __version__ = "0.0.1"
