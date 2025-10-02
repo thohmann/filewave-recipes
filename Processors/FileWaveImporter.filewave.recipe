@@ -5,7 +5,7 @@
     <key>Description</key>
     <string></string>
     <key>Identifier</key>
-    <string>com.github.thohmann.FWImporter</string>
+    <string>com.github.thohmann.FileWaveImporter</string>
     <key>Input</key>
     <dict/>
     <key>MinimumVersion</key>
