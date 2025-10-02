@@ -28,8 +28,11 @@ from autopkglib import Processor, ProcessorError
 # this Processor was imported via autopkg explicitly, the directory is not in
 # the search path.
 sys.path.append(os.path.dirname(__file__))
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+if _current_dir not in sys.path:
+  sys.path.insert(0, _current_dir)
 from CommandLine import FWAdminClient
-from .FWTool import COMMON_FILEWAVE_VARIABLES, FWTool
+from FWTool import COMMON_FILEWAVE_VARIABLES, FWTool
 
 
 __version__ = "0.0.1"
@@ -240,3 +243,4 @@ class FileWaveImporter(FWTool):
 if __name__ == '__main__':
     PROCESSOR = FileWaveImporter()
     PROCESSOR.execute_shell()
+  
