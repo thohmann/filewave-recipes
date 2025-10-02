@@ -335,36 +335,70 @@ class FWAdminClient(object):
             self.export_fs_callback(id, dest)
         return id
 
-    def import_folder(self, path, name=None, root=None, target=None, activation_script=None, requirements_script=None, preflight_script=None, postflight_script=None, preuninstallation_script=None, postuninstallation_script=None, verification_script=None):
+    def import_folder(self, path, name=None, root=None, target=None, activation_script=None, requirements_script=None, preflight_script=None, postflight_script=None, preuninstallation_script=None, postuninstallation_script=None, verification_script=None, create_revision=False, revision_name=None, set_as_default=False):
+        """
+        Importiert einen Ordner als Fileset mit Revision-Support.
+        """
+        # Prüfe ob Revision bereits existiert (nur wenn create_revision=True)
+        if create_revision and revision_name:
+            if self.revision_exists(name, revision_name):
+                return None  # Skip
+        
+        # Prüfe ob Fileset existiert für Revision-Modus
+        fileset_exists = False
+        if create_revision and name:
+            fileset_revisions = self.get_fileset_revisions(name)
+            fileset_exists = len(fileset_revisions) > 0
+        
         options = ['--importFolder', path]
-        if name:
-            options.extend(["--name", name])
-        if root:
-            options.extend(["--root", root])
-        if target:
-            options.extend(["--filesetgroup", str(target)])
-        if activation_script:
-            options.extend(["--addActivationScript", str(activation_script)])
-        if requirements_script:
-            options.extend(["--addRequirementsScript", str(requirements_script)])
-        if preflight_script:
-            options.extend(["--addPreflightScript", str(preflight_script)])
-        if postflight_script:
-            options.extend(["--addPostflightScript", str(postflight_script)])
-        if preuninstallation_script:
-            options.extend(["--addPreuninstallationScript", str(preuninstallation_script)])
-        if postuninstallation_script:
-            options.extend(["--addPostuninstallationScript", str(postuninstallation_script)])
-        if verification_script:
-            options.extend(["--addVerificationScript", str(verification_script)])
+        
+        if create_revision and fileset_exists:
+            # Fileset existiert - füge neue Revision hinzu
+            options.extend(['--fileset', name])
+            options.extend(['--revision', revision_name])
+            if set_as_default:
+                options.append('--setRevisionAsDefault')
+        else:
+            # Neues Fileset oder normaler Import
+            if name:
+                options.extend(["--name", name])
+            if root:
+                options.extend(["--root", root])
+            if target:
+                options.extend(["--filesetgroup", str(target)])
+            
+            # Wenn Revision-Modus und Fileset neu, erstelle mit initialer Revision
+            if create_revision and revision_name:
+                options.extend(['--revision', revision_name])
+                if set_as_default:
+                    options.append('--setRevisionAsDefault')
+        
+        # Scripts nur bei neuem Fileset oder initialer Revision
+        if not (create_revision and fileset_exists):
+            if activation_script:
+                options.extend(["--addActivationScript", str(activation_script)])
+            if requirements_script:
+                options.extend(["--addRequirementsScript", str(requirements_script)])
+            if preflight_script:
+                options.extend(["--addPreflightScript", str(preflight_script)])
+            if postflight_script:
+                options.extend(["--addPostflightScript", str(postflight_script)])
+            if preuninstallation_script:
+                options.extend(["--addPreuninstallationScript", str(preuninstallation_script)])
+            if postuninstallation_script:
+                options.extend(["--addPostuninstallationScript", str(postuninstallation_script)])
+            if verification_script:
+                options.extend(["--addVerificationScript", str(verification_script)])
 
         import_folder_result = self.run_admin(options)
         matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
         search = matcher.search(import_folder_result)
-        id = search.group('id')
-        if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
-            self.create_fs_callback(id)
-        return id
+        if search:
+            id = search.group('id')
+            if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
+                self.create_fs_callback(id)
+            return id
+        return None
 
     def import_image(self, path, error_expected=False):
         options = ['--importImage', path]
@@ -379,36 +413,41 @@ class FWAdminClient(object):
     def import_package(self, path, name=None, root=None, target=None, 
                       create_revision=False, revision_name=None, set_as_default=False):
         """
-        Importiert ein Package als Fileset.
-        
-        Erweitert um Revision-Support:
-        - create_revision: Erstellt eine neue Revision statt Fileset zu updaten
-        - revision_name: Name der Revision
-        - set_as_default: Setzt die neue Revision als Default
-        
-        Returns:
-            Fileset-ID oder None wenn Revision bereits existiert (Skip)
+        Importiert ein Package als Fileset mit Revision-Support.
         """
         # Prüfe ob Revision bereits existiert (nur wenn create_revision=True)
         if create_revision and revision_name:
             if self.revision_exists(name, revision_name):
-                # Revision existiert bereits - signalisiere Skip
-                return None
+                return None  # Skip
+        
+        # Prüfe ob Fileset existiert für Revision-Modus
+        fileset_exists = False
+        if create_revision and name:
+            fileset_revisions = self.get_fileset_revisions(name)
+            fileset_exists = len(fileset_revisions) > 0
         
         options = ['--importPackage', path]
-        if name:
-            options.extend(["--name", name])
-        if root:
-            options.extend(["--root", root])
-        if target:
-            options.extend(["--filesetgroup", str(target)])
         
-        # Revision-Parameter hinzufügen
-        if create_revision and revision_name:
+        if create_revision and fileset_exists:
+            # Fileset existiert - füge neue Revision hinzu
             options.extend(['--fileset', name])
             options.extend(['--revision', revision_name])
             if set_as_default:
                 options.append('--setRevisionAsDefault')
+        else:
+            # Neues Fileset oder normaler Import
+            if name:
+                options.extend(["--name", name])
+            if root:
+                options.extend(["--root", root])
+            if target:
+                options.extend(["--filesetgroup", str(target)])
+            
+            # Wenn Revision-Modus und Fileset neu, erstelle mit initialer Revision
+            if create_revision and revision_name:
+                options.extend(['--revision', revision_name])
+                if set_as_default:
+                    options.append('--setRevisionAsDefault')
 
         import_package_result = self.run_admin(options)
         matcher = re.compile(r'neues Fileset mit der ID (?P<id>.+) wurde mit dem Namen')
