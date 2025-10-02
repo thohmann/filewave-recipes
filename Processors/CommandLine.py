@@ -120,6 +120,9 @@ class FWAdminClient(object):
         return os.environ.get("FILEWAVE_ADMIN_PATH", '/Applications/FileWave')
 
     def run_admin(self, options, include_connection_options=True, error_expected=False, print_output=None, max_retries=3, retry_delay=5):
+        """
+        Führt FileWave Admin CLI-Befehl aus mit Retry-Logik für SIGSEGV-Crashes.
+        """
         import time
         
         print_output = print_output or self.print_output
@@ -146,7 +149,7 @@ class FWAdminClient(object):
             try:
                 if print_output:
                     if attempt > 0:
-                        print(f"Retry attempt {attempt + 1}/{max_retries}")
+                        print("Retry attempt %d/%d" % (attempt + 1, max_retries))
                     print(process_options)
                     
                 self.run_result_ret = subprocess.check_output(process_options, stderr=subprocess.STDOUT).decode().rstrip()
@@ -162,8 +165,8 @@ class FWAdminClient(object):
                 # SIGSEGV (-11) oder andere Crash-Fehler
                 if e.returncode == -11 and attempt < max_retries - 1:
                     if print_output:
-                        print(f"Command crashed with SIGSEGV (returncode: {e.returncode})")
-                        print(f"Retrying in {retry_delay} seconds...")
+                        print("Command crashed with SIGSEGV (returncode: %d)" % e.returncode)
+                        print("Retrying in %d seconds..." % retry_delay)
                     time.sleep(retry_delay)
                     continue  # Versuche erneut
                 
@@ -182,7 +185,59 @@ class FWAdminClient(object):
             raise Exception("Expected an error, but command was successful")
             
         return self.run_result_ret
-    
+
+    def get_fileset_revisions(self, fileset_name_or_id):
+        """
+        Holt Revisionen für ein Fileset.
+        
+        Args:
+            fileset_name_or_id: Name oder ID des Filesets
+            
+        Returns:
+            Liste von Revision-Dictionaries oder leere Liste
+        """
+        try:
+            filesets_json = self.run_admin("--listFilesets")
+            filesets = json.loads(filesets_json)
+            
+            # Rekursiv durch Struktur suchen
+            def find_fileset(items):
+                if not isinstance(items, list):
+                    return None
+                for item in items:
+                    if not isinstance(item, dict):
+                        continue
+                    # Prüfe auf Name oder ID Match
+                    if (item.get("name") == fileset_name_or_id or 
+                        str(item.get("id")) == str(fileset_name_or_id)):
+                        return item
+                    # Rekursiv durch children
+                    if "children" in item:
+                        result = find_fileset(item["children"])
+                        if result:
+                            return result
+                return None
+            
+            fileset = find_fileset(filesets)
+            return fileset.get("revisions", []) if fileset else []
+            
+        except Exception as e:
+            # Bei Fehler leere Liste zurückgeben
+            return []
+
+    def revision_exists(self, fileset_name, revision_name):
+        """
+        Prüft ob eine Revision mit dem Namen bereits existiert.
+        
+        Args:
+            fileset_name: Name des Filesets
+            revision_name: Name der Revision
+            
+        Returns:
+            True wenn Revision existiert, False sonst
+        """
+        revisions = self.get_fileset_revisions(fileset_name)
+        return any(rev.get("name") == revision_name for rev in revisions)
     
     def get_version(self):
         version = self.run_admin("-v")
@@ -321,7 +376,25 @@ class FWAdminClient(object):
             self.create_fs_callback(id)
         return id
 
-    def import_package(self, path, name=None, root=None, target=None):
+    def import_package(self, path, name=None, root=None, target=None, 
+                      create_revision=False, revision_name=None, set_as_default=False):
+        """
+        Importiert ein Package als Fileset.
+        
+        Erweitert um Revision-Support:
+        - create_revision: Erstellt eine neue Revision statt Fileset zu updaten
+        - revision_name: Name der Revision
+        - set_as_default: Setzt die neue Revision als Default
+        
+        Returns:
+            Fileset-ID oder None wenn Revision bereits existiert (Skip)
+        """
+        # Prüfe ob Revision bereits existiert (nur wenn create_revision=True)
+        if create_revision and revision_name:
+            if self.revision_exists(name, revision_name):
+                # Revision existiert bereits - signalisiere Skip
+                return None
+        
         options = ['--importPackage', path]
         if name:
             options.extend(["--name", name])
@@ -329,14 +402,23 @@ class FWAdminClient(object):
             options.extend(["--root", root])
         if target:
             options.extend(["--filesetgroup", str(target)])
+        
+        # Revision-Parameter hinzufügen
+        if create_revision and revision_name:
+            options.extend(['--fileset', name])
+            options.extend(['--revision', revision_name])
+            if set_as_default:
+                options.append('--setRevisionAsDefault')
 
         import_package_result = self.run_admin(options)
         matcher = re.compile(r'neues Fileset mit der ID (?P<id>.+) wurde mit dem Namen')
         search = matcher.search(import_package_result)
-        id = search.group('id')
-        if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
-            self.create_fs_callback(id)
-        return id
+        if search:
+            id = search.group('id')
+            if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
+                self.create_fs_callback(id)
+            return id
+        return None
 
     def set_property(self, fileset_id, prop_name, prop_value):
         options = ['--fileset', fileset_id, '--setProperty', '--key', prop_name, '--value', prop_value]
@@ -367,4 +449,3 @@ class FWAdminClient(object):
         if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
             self.create_fs_callback(id)
         return id
-    
