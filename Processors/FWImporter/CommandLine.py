@@ -119,49 +119,71 @@ class FWAdminClient(object):
     def get_executable_path(cls):
         return os.environ.get("FILEWAVE_ADMIN_PATH", '/Applications/FileWave')
 
-    def run_admin(self, options, include_connection_options=True, error_expected=False, print_output=None):
+    def run_admin(self, options, include_connection_options=True, error_expected=False, print_output=None, max_retries=3, retry_delay=5):
+        import time
+        
         print_output = print_output or self.print_output
         process_options = [self.fwadmin_executable]
         if include_connection_options:
             process_options.extend(self.connection_options)
-
+            
         # Map string type for both Python 2 and Python 3.
         try:
             _ = basestring
         except NameError:
             basestring = str  # pylint: disable=W0622
-
+            
         if isinstance(options, basestring):
             process_options.append(options)
         else:
             process_options.extend(options)
-
+            
         got_error = False
-
         self.run_result_ret = None
-        try:
-            if print_output:
-                print(process_options)
-
-            self.run_result_ret = subprocess.check_output(process_options, stderr=subprocess.STDOUT).decode().rstrip()
-            self.run_result_ret = re.sub(r"QObject::connect.*QNetworkSession::State\)\n", '', self.run_result_ret)
-            self.run_result_ret = re.sub(r"qt.network.ssl: Error receiving trust for a CA certificate\n", '', self.run_result_ret)
-
-        except CalledProcessError as e:
-            got_error = True
-            if print_output:
-                print("Command failed, error code: ", e.returncode)
-                print("Ouput: ", e.output)
-            if not error_expected:
-                raise e
-            else:
-                self.run_result_ret = e.output, e.returncode
-
+        
+        # Retry-Schleife
+        for attempt in range(max_retries):
+            try:
+                if print_output:
+                    if attempt > 0:
+                        print(f"Retry attempt {attempt + 1}/{max_retries}")
+                    print(process_options)
+                    
+                self.run_result_ret = subprocess.check_output(process_options, stderr=subprocess.STDOUT).decode().rstrip()
+                self.run_result_ret = re.sub(r"QObject::connect.*QNetworkSession::State\)\n", '', self.run_result_ret)
+                self.run_result_ret = re.sub(r"qt.network.ssl: Error receiving trust for a CA certificate\n", '', self.run_result_ret)
+                
+                # Erfolg - breche Retry-Schleife ab
+                break
+            
+            except CalledProcessError as e:
+                got_error = True
+                
+                # SIGSEGV (-11) oder andere Crash-Fehler
+                if e.returncode == -11 and attempt < max_retries - 1:
+                    if print_output:
+                        print(f"Command crashed with SIGSEGV (returncode: {e.returncode})")
+                        print(f"Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    continue  # Versuche erneut
+                
+                # Letzter Versuch oder anderer Fehler
+                if print_output:
+                    print("Command failed, error code: ", e.returncode)
+                    print("Output: ", e.output)
+                    
+                if not error_expected:
+                    raise e
+                else:
+                    self.run_result_ret = e.output, e.returncode
+                    break
+                
         if error_expected and not got_error:
             raise Exception("Expected an error, but command was successful")
-
+            
         return self.run_result_ret
-
+    
+    
     def get_version(self):
         version = self.run_admin("-v")
         return version
@@ -216,7 +238,7 @@ class FWAdminClient(object):
     def get_help(self):
         return self.run_admin("-h")
 
-    def import_fileset(self, path, name=None, root=None, target=None):
+    def import_fileset(self, path, name=None, root=None, target=None, activation_script=None, requirements_script=None, preflight_script=None, postflight_script=None, preuninstallation_script=None, postuninstallation_script=None, verification_script=None):
         options = ['--importFileset', path]
         if name:
             options.extend(["--name", name])
@@ -224,6 +246,20 @@ class FWAdminClient(object):
             options.extend(["--root", root])
         if target:
             options.extend(["--filesetgroup", str(target)])
+        if activation_script:
+            options.extend(["--addActivationScript", str(activation_script)])
+        if requirements_script:
+            options.extend(["--addRequirementsScript", str(requirements_script)])
+        if preflight_script:
+            options.extend(["--addPreflightScript", str(preflight_script)])
+        if postflight_script:
+            options.extend(["--addPostflightScript", str(postflight_script)])
+        if preuninstallation_script:
+            options.extend(["--addPreuninstallationScript", str(preuninstallation_script)])
+        if postuninstallation_script:
+            options.extend(["--addPostuninstallationScript", str(postuninstallation_script)])
+        if verification_script:
+            options.extend(["--addVerificationScript", str(verification_script)])
 
         import_folder_result = self.run_admin(options)
         matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
@@ -234,7 +270,7 @@ class FWAdminClient(object):
         return id
 
     def export_fileset(self, destination, fs_name):
-        options = [ '--exportFileset', destination, '--fileset', fs_name ]
+        options = [ '--exportFileset', destination, '--fileset', fs_name, '--name', fs_name]
         export_result = self.run_admin(options)
         matcher = re.compile(r'the fileset with ID (?P<id>.+) was exported to \'(?P<to>.+)\'')
         search = matcher.search(export_result)
@@ -243,8 +279,8 @@ class FWAdminClient(object):
         if self.export_fs_callback and hasattr(self.export_fs_callback, '__call__'):
             self.export_fs_callback(id, dest)
         return id
-    
-    def import_folder(self, path, name=None, root=None, target=None, act_script=None, pre_script=None, post_script=None, ver_script=None, pre_un_script=None, post_un_script=None, req_script=None, revison=None, id=None):
+
+    def import_folder(self, path, name=None, root=None, target=None, activation_script=None, requirements_script=None, preflight_script=None, postflight_script=None, preuninstallation_script=None, postuninstallation_script=None, verification_script=None):
         options = ['--importFolder', path]
         if name:
             options.extend(["--name", name])
@@ -252,26 +288,21 @@ class FWAdminClient(object):
             options.extend(["--root", root])
         if target:
             options.extend(["--filesetgroup", str(target)])
-        if id:
-            options.extend(["--fileset", id])
-        if revison:
-            options.extend(["--revision", revison])
-        if act_script:
-            options.extend(["--addActivationScript", act_script])
-        if pre_script:
-            options.extend(["--addPreflightScript", pre_script])
-        if post_script:
-            options.extend(["--addPostflightScript", post_script])
-        if ver_script:
-            options.extend(["--addVerificationScript", ver_script])
-        if pre_un_script:
-            options.extend(["--addPreuninstallationScript", pre_un_script])
-        if post_un_script:
-            options.extend(["--addPostuninstallationScript", post_un_script])
-        if req_script:
-            options.extend(["--addRequirementsScript", req_script])
-        
-            
+        if activation_script:
+            options.extend(["--addActivationScript", str(activation_script)])
+        if requirements_script:
+            options.extend(["--addRequirementsScript", str(requirements_script)])
+        if preflight_script:
+            options.extend(["--addPreflightScript", str(preflight_script)])
+        if postflight_script:
+            options.extend(["--addPostflightScript", str(postflight_script)])
+        if preuninstallation_script:
+            options.extend(["--addPreuninstallationScript", str(preuninstallation_script)])
+        if postuninstallation_script:
+            options.extend(["--addPostuninstallationScript", str(postuninstallation_script)])
+        if verification_script:
+            options.extend(["--addVerificationScript", str(verification_script)])
+
         import_folder_result = self.run_admin(options)
         matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
         search = matcher.search(import_folder_result)
@@ -279,7 +310,6 @@ class FWAdminClient(object):
         if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
             self.create_fs_callback(id)
         return id
-    
 
     def import_image(self, path, error_expected=False):
         options = ['--importImage', path]
@@ -291,7 +321,7 @@ class FWAdminClient(object):
             self.create_fs_callback(id)
         return id
 
-    def import_package(self, path, name=None, root=None, target=None, act_script=None, pre_script=None, post_script=None, ver_script=None, pre_un_script=None, post_un_script=None, req_script=None, revison=None, id=None):
+    def import_package(self, path, name=None, root=None, target=None):
         options = ['--importPackage', path]
         if name:
             options.extend(["--name", name])
@@ -299,27 +329,9 @@ class FWAdminClient(object):
             options.extend(["--root", root])
         if target:
             options.extend(["--filesetgroup", str(target)])
-        if id:
-            options.extend(["--fileset", id])
-        if revison:
-            options.extend(["--revision", revison])
-        if act_script:
-            options.extend(["--addActivationScript", act_script])
-        if pre_script:
-            options.extend(["--addPreflightScript", pre_script])
-        if post_script:
-            options.extend(["--addPostflightScript", post_script])
-        if ver_script:
-            options.extend(["--addVerificationScript", ver_script])
-        if pre_un_script:
-            options.extend(["--addPreuninstallationScript", pre_un_script])
-        if post_un_script:
-            options.extend(["--addPostuninstallationScript", post_un_script])
-        if req_script:
-            options.extend(["--addRequirementsScript", req_script])
 
         import_package_result = self.run_admin(options)
-        matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
+        matcher = re.compile(r'neues Fileset mit der ID (?P<id>.+) wurde mit dem Namen')
         search = matcher.search(import_package_result)
         id = search.group('id')
         if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
@@ -355,3 +367,4 @@ class FWAdminClient(object):
         if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
             self.create_fs_callback(id)
         return id
+    

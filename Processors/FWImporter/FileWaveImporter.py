@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/autopkg/python
 #
 # Copyright 2015 FileWave (Europe) GmbH
 #
@@ -60,6 +60,10 @@ class FileWaveImporter(FWTool):
             "description": ("The location at which to place all the imported data.  Defaults to %s"
                              % FW_FILESET_DESTINATION )
         },
+        "fw_export_fileset": {
+            "required": False,
+            "description": "Should the fileset be exported to specified path",
+        },
         "fw_app_bundle_id": {
             "default": None,
             "required": False,
@@ -74,48 +78,41 @@ class FileWaveImporter(FWTool):
             "description": "This should be the CFBundleShortVersionString value \
                            from the apps Info.plist."
         },
-        "fw_script_reqirement": {
-        "default": None,
-        "required": False,
-        "description": "This should be the path to a requirement script \
-                            added to the fileset."
+        "fw_fileset_activation_script": {
+            "default": None,
+            "required": False,
+            "description": "The location of an activation script. Needs to be in the imported folder and executable.",
         },
-        "fw_script_preflight": {
-        "default": None,
-        "required": False,
-        "description": "This should be the path to a preflight script \
-                            added to the fileset."
+        "fw_fileset_requirements_script": {
+            "default": None,
+            "required": False,
+            "description": "The location of a requirements script. Needs to be in the imported folder and executable.",
         },
-        "fw_script_postflight": {
-        "default": None,
-        "required": False,
-        "description": "This should be the path to a postflight script \
-                            added to the fileset."
+        "fw_fileset_preflight_script": {
+            "default": None,
+            "required": False,
+            "description": "The location of a preflight script. Needs to be in the imported folder and executable.",
         },
-        "fw_script_activate": {
-        "default": None,
-        "required": False,
-        "description": "This should be the path to a activation script \
-                            added to the fileset."
+        "fw_fileset_postflight_script": {
+            "default": None,
+            "required": False,
+            "description": "The location of a postflight script. Needs to be in the imported folder and executable.",
         },
-        "fw_script_verify": {
-        "default": None,
-        "required": False,
-        "description": "This should be the path to a verify script \
-                            added to the fileset."
+        "fw_fileset_preuninstallation_script": {
+            "default": None,
+            "required": False,
+            "description": "The location of a preuninstallation script. Needs to be in the imported folder and executable.",
         },
-        "fw_script_preuninstall": {
-        "default": None,
-        "required": False,
-        "description": "This should be the path to a preuninstall script \
-                            added to the fileset."
+        "fw_fileset_postuninstallation_script": {
+            "default": None,
+            "required": False,
+            "description": "The location of a postuninstallation script. Needs to be in the imported folder and executable.",
         },
-        "fw_script_postuninstall": {
-        "default": None,
-        "required": False,
-        "description": "This should be the path to a postuninstall script \
-                            added to the fileset."
-        }
+        "fw_fileset_verification_script": {
+            "default": None,
+            "required": False,
+            "description": "The location of a verification script. Needs to be in the imported folder and executable.",
+        },
     }
 
     input_variables = dict(COMMON_FILEWAVE_VARIABLES, **importer_variables)
@@ -152,7 +149,8 @@ class FileWaveImporter(FWTool):
                 app_bundle_id = fileset.custom_properties.get("autopkg_app_bundle_id", None)
                 app_version = fileset.custom_properties.get("autopkg_app_version", None)
 
-                if app_bundle_id == fw_app_bundle_id and \
+                if app_bundle_id is not None and app_version is not None and \
+                                app_bundle_id == fw_app_bundle_id and \
                                 LooseVersion(app_version) >= LooseVersion(fw_app_version):
                     print("This app version is already satisfied by the fileset %s called '%s' (%s, %s)" %\
                           (fileset.id, fileset.name, fw_app_bundle_id, fw_app_version ))
@@ -168,6 +166,13 @@ class FileWaveImporter(FWTool):
         destination_root = self.env.get('fw_destination_root',
                                         FW_FILESET_DESTINATION)
         find_type_in_dmg = self.env.get('fw_dmg_content_type', None)
+        fileset_activation_script = self.env.get('fw_fileset_activation_script', None)
+        fileset_requirements_script = self.env.get('fw_fileset_requirements_script', None)
+        fileset_preflight_script = self.env.get('fw_fileset_preflight_script', None)
+        fileset_postflight_script = self.env.get('fw_fileset_postflight_script', None)
+        fileset_preuninstallation_script = self.env.get('fw_fileset_preuninstallation_script', None)
+        fileset_postuninstallation_script = self.env.get('fw_fileset_postuninstallation_script', None)
+        fileset_verification_script = self.env.get('fw_fileset_verification_script', None)
 
         fileset_id = None
         dmg_mountpoint = None
@@ -188,7 +193,14 @@ class FileWaveImporter(FWTool):
                     fileset_id = self.client.import_folder(path=import_source,
                                                       name=fileset_name,
                                                       root=destination_root,
-                                                      target=fileset_group)
+                                                      target=fileset_group,
+                                                      activation_script=fileset_activation_script,
+                                                      requirements_script=fileset_requirements_script,
+                                                      preflight_script=fileset_preflight_script,
+                                                      postflight_script=fileset_postflight_script,
+                                                      preuninstallation_script=fileset_preuninstallation_script,
+                                                      postuninstallation_script=fileset_postuninstallation_script,
+                                                      verification_script=fileset_verification_script)
 
                 if FILEWAVE_SUMMARY_RESULT in self.env:
                     del self.env[FILEWAVE_SUMMARY_RESULT]
@@ -220,7 +232,11 @@ class FileWaveImporter(FWTool):
             if dmg_mountpoint is not None:
                 self.unmount(dmg_mountpoint)
 
+            export_fileset = self.env.get('fw_export_fileset', None)
+            if export_fileset is not None:
+                if export_fileset != "":
+                    self.client.export_fileset(export_fileset, fileset_name)
+
 if __name__ == '__main__':
     PROCESSOR = FileWaveImporter()
     PROCESSOR.execute_shell()
-  
