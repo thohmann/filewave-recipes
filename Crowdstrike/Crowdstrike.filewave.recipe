@@ -56,7 +56,7 @@ Credentials müssen vorher in der Keychain gespeichert werden:
         </dict>
         <dict>
             <key>Processor</key>
-            <string>com.github.thohmann.pathchown/PathCHOWN</string>
+            <string>com.github.thohmann.processors/PathCHOWN</string>
             <key>Arguments</key>
             <dict>
                 <key>path</key>
@@ -69,7 +69,7 @@ Credentials müssen vorher in der Keychain gespeichert werden:
         </dict>
         <dict>
             <key>Processor</key>
-            <string>com.github.thohmann.pathchown/FileWaveImporter</string>
+            <string>com.github.thohmann.processors/FileWaveImporter</string>
             <key>Arguments</key>
             <dict>
                 <key>fw_destination_root</key>
@@ -88,7 +88,7 @@ Credentials müssen vorher in der Keychain gespeichert werden:
         </dict>
         <dict>
             <key>Processor</key>
-            <string>com.github.thohmann.pathchown/PathCHOWN</string>
+            <string>com.github.thohmann.processors/PathCHOWN</string>
             <key>Arguments</key>
             <dict>
                 <key>path</key>
