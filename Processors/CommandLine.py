@@ -339,26 +339,48 @@ class FWAdminClient(object):
         """
         Importiert einen Ordner als Fileset mit Revision-Support.
         """
-        # Prüfe ob Revision bereits existiert (nur wenn create_revision=True)
+        # DEBUG - Schreibe in temporäre Datei
+        import datetime
+        debug_file = "/tmp/filewave_debug.log"
+        with open(debug_file, "a") as f:
+            f.write("=" * 80 + "\n")
+            f.write(f"{datetime.datetime.now()}\n")
+            f.write(f"import_folder called:\n")
+            f.write(f"  name: {name}\n")
+            f.write(f"  create_revision: {create_revision}\n")
+            f.write(f"  revision_name: {revision_name}\n")
+            f.write(f"  set_as_default: {set_as_default}\n")
+            
+        # Prüfe ob Revision bereits existiert
         if create_revision and revision_name:
+            with open(debug_file, "a") as f:
+                f.write(f"  Checking if revision exists...\n")
             if self.revision_exists(name, revision_name):
-                return None  # Skip
-        
-        # Prüfe ob Fileset existiert für Revision-Modus
+                with open(debug_file, "a") as f:
+                    f.write(f"  -> Revision EXISTS, returning None\n")
+                return None
+            with open(debug_file, "a") as f:
+                f.write(f"  -> Revision does NOT exist\n")
+                
+        # Prüfe ob Fileset existiert
         fileset_exists = False
         if create_revision and name:
             fileset_revisions = self.get_fileset_revisions(name)
             fileset_exists = len(fileset_revisions) > 0
-        
-        options = ['--importFolder', path]
+            with open(debug_file, "a") as f:
+                f.write(f"  Fileset exists: {fileset_exists}\n")
+                f.write(f"  Revisions found: {fileset_revisions}\n")            
+            options = ['--importFolder', path]
         
         if create_revision and fileset_exists:
+            print("  MODE: Adding revision to existing fileset")
             # Fileset existiert - füge neue Revision hinzu
             options.extend(['--fileset', name])
             options.extend(['--revision', revision_name])
             if set_as_default:
                 options.append('--setRevisionAsDefault')
         else:
+            print("  MODE: Creating new fileset (or normal import)")            
             # Neues Fileset oder normaler Import
             if name:
                 options.extend(["--name", name])

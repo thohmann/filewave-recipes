@@ -155,6 +155,11 @@ class FileWaveImporter(FWTool):
 
 
     def main(self):
+        ###DEBUG###
+        with open("/tmp/filewave_main_called.txt", "w") as f:
+            f.write("main() was called\n")
+        ###DEBUG###
+            
         self.validate_tools(print_path=False)
 
         fw_app_bundle_id = self.env.get('fw_app_bundle_id', None)
@@ -218,6 +223,17 @@ class FileWaveImporter(FWTool):
         fileset_id = None
         dmg_mountpoint = None
         filename, file_extension = os.path.splitext(import_source)
+        
+        import datetime
+        debug_file = "/tmp/filewave_debug.log"
+        with open(debug_file, "a") as f:
+          f.write("=" * 80 + "\n")
+          f.write(f"{datetime.datetime.now()}\n")
+          f.write(f"Import source: {import_source}\n")
+          f.write(f"File extension: {file_extension}\n")
+          f.write(f"Is dir: {os.path.isdir(import_source)}\n")
+          f.write(f"create_revision: {create_revision}\n")
+          f.write(f"revision_name: {revision_name}\n")
 
         try:
             if file_extension in [ ".dmg" ] and find_type_in_dmg is not None:
@@ -244,18 +260,28 @@ class FileWaveImporter(FWTool):
                         return
                     
                 elif os.path.isdir(import_source):
-                    fileset_id = self.client.import_folder(path=import_source,
-                                                      name=fileset_name,
-                                                      root=destination_root,
-                                                      target=fileset_group,
-                                                      activation_script=fileset_activation_script,
-                                                      requirements_script=fileset_requirements_script,
-                                                      preflight_script=fileset_preflight_script,
-                                                      postflight_script=fileset_postflight_script,
-                                                      preuninstallation_script=fileset_preuninstallation_script,
-                                                      postuninstallation_script=fileset_postuninstallation_script,
-                                                      verification_script=fileset_verification_script)
-
+                  fileset_id = self.client.import_folder(
+                    path=import_source,
+                    name=fileset_name,
+                    root=destination_root,
+                    target=fileset_group,
+                    activation_script=fileset_activation_script,
+                    requirements_script=fileset_requirements_script,
+                    preflight_script=fileset_preflight_script,
+                    postflight_script=fileset_postflight_script,
+                    preuninstallation_script=fileset_preuninstallation_script,
+                    postuninstallation_script=fileset_postuninstallation_script,
+                    verification_script=fileset_verification_script,
+                    create_revision=create_revision,
+                    revision_name=revision_name if create_revision else None,
+                    set_as_default=set_as_default if create_revision else False
+                  )
+                  
+                  # NEU: Prüfe auf Skip (wenn Revision bereits existiert)
+                  if fileset_id is None and create_revision:
+                    self.output("Revision '%s' existiert bereits im Fileset '%s'" % (revision_name, fileset_name))
+                    self.output("Überspringe Import (kein Update notwendig)")
+                    return
                 if FILEWAVE_SUMMARY_RESULT in self.env:
                     del self.env[FILEWAVE_SUMMARY_RESULT]
 
