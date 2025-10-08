@@ -414,19 +414,22 @@ class FWAdminClient(object):
 
         import_folder_result = self.run_admin(options)
         
-        # DEBUG
-        with open("/tmp/import_result.txt", "w") as f:
-            f.write(import_folder_result)
-            
+        # Versuche zuerst Fileset-Pattern
         matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
         search = matcher.search(import_folder_result)
+        
+        # Falls nicht gefunden, versuche Revision-Pattern
+        if not search:
+            matcher = re.compile(r'a new revision with ID (?P<id>.+) was created')
+            search = matcher.search(import_folder_result)
+            
         if search:
             id = search.group('id')
             if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
                 self.create_fs_callback(id)
             return id
         return None
-
+    
     def import_image(self, path, error_expected=False):
         options = ['--importImage', path]
         import_image_result = self.run_admin( options, error_expected=error_expected )
@@ -476,9 +479,17 @@ class FWAdminClient(object):
                 if set_as_default:
                     options.append('--setRevisionAsDefault')
 
-        import_package_result = self.run_admin(options)
-        matcher = re.compile(r'neues Fileset mit der ID (?P<id>.+) wurde mit dem Namen')
-        search = matcher.search(import_package_result)
+        import_folder_result = self.run_admin(options)
+        
+        # Versuche zuerst Fileset-Pattern
+        matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
+        search = matcher.search(import_folder_result)
+        
+        # Falls nicht gefunden, versuche Revision-Pattern
+        if not search:
+            matcher = re.compile(r'a new revision with ID (?P<id>.+) was created')
+            search = matcher.search(import_folder_result)
+            
         if search:
             id = search.group('id')
             if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
