@@ -413,6 +413,11 @@ class FWAdminClient(object):
                 options.extend(["--addVerificationScript", str(verification_script)])
 
         import_folder_result = self.run_admin(options)
+        
+        # DEBUG
+        with open("/tmp/import_result.txt", "w") as f:
+            f.write(import_folder_result)
+            
         matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
         search = matcher.search(import_folder_result)
         if search:
