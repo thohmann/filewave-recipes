@@ -349,6 +349,15 @@ class FWAdminClient(object):
         if create_revision and name:
             fileset_revisions = self.get_fileset_revisions(name)
             fileset_exists = len(fileset_revisions) > 0
+            
+            # Wenn Fileset nicht existiert, erstelle leeres Fileset
+            if not fileset_exists:
+                print("Erstelle leeres Fileset '%s' für Revisions-Management..." % name)
+                self.create_empty_fileset(name, target)
+                print("  -> Leeres Fileset mit 'Initial Revision' erstellt")
+                print("  -> Erste Revision '%s' wird automatisch als Default gesetzt" % revision_name)
+                fileset_exists = True
+                set_as_default = True  # Erste echte Revision wird Default
         
         options = ['--importFolder', path]
         
@@ -431,6 +440,15 @@ class FWAdminClient(object):
         if create_revision and name:
             fileset_revisions = self.get_fileset_revisions(name)
             fileset_exists = len(fileset_revisions) > 0
+            
+            # Wenn Fileset nicht existiert, erstelle leeres Fileset
+            if not fileset_exists:
+                print("Erstelle leeres Fileset '%s' für Revisions-Management..." % name)
+                self.create_empty_fileset(name, target)
+                print("  -> Leeres Fileset mit 'Initial Revision' erstellt")
+                print("  -> Erste Revision '%s' wird automatisch als Default gesetzt" % revision_name)
+                fileset_exists = True
+                set_as_default = True  # Erste echte Revision wird Default
         
         options = ['--importPackage', path]
         
