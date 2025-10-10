@@ -244,17 +244,29 @@ class FileWaveImporter(FWTool):
                         return
                     
                 elif os.path.isdir(import_source):
-                    fileset_id = self.client.import_folder(path=import_source,
-                                                      name=fileset_name,
-                                                      root=destination_root,
-                                                      target=fileset_group,
-                                                      activation_script=fileset_activation_script,
-                                                      requirements_script=fileset_requirements_script,
-                                                      preflight_script=fileset_preflight_script,
-                                                      postflight_script=fileset_postflight_script,
-                                                      preuninstallation_script=fileset_preuninstallation_script,
-                                                      postuninstallation_script=fileset_postuninstallation_script,
-                                                      verification_script=fileset_verification_script)
+                    # ÄNDERUNG: Erweiterte Parameter für Revision-Support
+                    fileset_id = self.client.import_folder(
+                        path=import_source,
+                        name=fileset_name,
+                        root=destination_root,
+                        target=fileset_group,
+                        activation_script=fileset_activation_script,
+                        requirements_script=fileset_requirements_script,
+                        preflight_script=fileset_preflight_script,
+                        postflight_script=fileset_postflight_script,
+                        preuninstallation_script=fileset_preuninstallation_script,
+                        postuninstallation_script=fileset_postuninstallation_script,
+                        verification_script=fileset_verification_script,
+                        create_revision=create_revision,
+                        revision_name=revision_name if create_revision else None,
+                        set_as_default=set_as_default if create_revision else False
+                    )
+                    
+                    # NEU: Prüfe auf Skip (wenn Revision bereits existiert)
+                    if fileset_id is None and create_revision:
+                        self.output("Revision '%s' existiert bereits im Fileset '%s'" % (revision_name, fileset_name))
+                        self.output("Überspringe Import (kein Update notwendig)")
+                        return
 
                 if FILEWAVE_SUMMARY_RESULT in self.env:
                     del self.env[FILEWAVE_SUMMARY_RESULT]
