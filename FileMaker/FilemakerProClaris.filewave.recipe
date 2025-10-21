@@ -11,7 +11,7 @@
 		<key>NAME</key>
 		<string>FileMaker Pro</string>
 		<key>PRODUCT_ID</key>
-		<string>PRO20MAC</string>
+		<string>PRO22MAC</string>
         <key>fw_destination_root</key>
         <string>/Applications/%NAME%.app</string>
 	</dict>
@@ -97,7 +97,7 @@
 				<string>%pkgroot%/Applications/%app_name%</string>
 			</dict>
 			<key>Processor</key>
-			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+			<string>com.github.thohmann.processors/FileWaveImporter</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>

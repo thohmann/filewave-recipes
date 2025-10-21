@@ -11,7 +11,7 @@
         <key>NAME</key>
         <string>TeamViewerQS</string>
         <key>DOWNLOAD_URL</key>
-        <string>https://customdesignservice.teamviewer.com/download/mac/v15/hdburmu/TeamViewerQS.zip</string>
+        <string>^</string>
     </dict>
     <key>MinimumVersion</key>
     <string>1.0.0</string>
