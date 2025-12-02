@@ -398,21 +398,22 @@ class FWAdminClient(object):
             options.extend(['--addVerificationScript', str(verification_script)])
 
         import_folder_result = self.run_admin(options)
-        
-        # Versuche zuerst Fileset-Pattern
-        matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
-        search = matcher.search(import_folder_result)
-        
-        # Falls nicht gefunden, versuche Revision-Pattern
-        if not search:
-            matcher = re.compile(r'a new revision with ID (?P<id>.+) was created')
+
+        # Patterns für FileWave Ausgaben
+        patterns = [
+            r'RESULT: a new fileset with ID (?P<id>\d+)',
+            r'RESULT: a new revision with ID (?P<id>\d+)',
+        ]
+
+        for pattern in patterns:
+            matcher = re.compile(pattern, re.IGNORECASE)
             search = matcher.search(import_folder_result)
-        
-        if search:
-            id = search.group('id')
-            if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
-                self.create_fs_callback(id)
-            return id
+            if search:
+                id = search.group('id')
+                if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
+                    self.create_fs_callback(id)
+                return id
+
         return None
 
     def import_image(self, path, error_expected=False):
@@ -449,7 +450,23 @@ class FWAdminClient(object):
                 print("  -> Erste Revision '%s' wird automatisch als Default gesetzt" % revision_name)
                 fileset_exists = True
                 set_as_default = True  # Erste echte Revision wird Default
-        
+
+        # Prüfe auf Namenskollision (nur wenn kein Revision-Modus)
+        if not create_revision and name:
+            original_name = name
+            counter = 1
+
+            # Hole alle existierenden Fileset-Namen
+            existing_names = [fs.name for fs in self.get_filesets()]
+
+            # Füge Nummerierung hinzu wenn Name bereits existiert
+            while name in existing_names:
+                name = "%s %d" % (original_name, counter)
+                counter += 1
+
+            if name != original_name:
+                print("Fileset '%s' existiert bereits. Verwende Namen: '%s'" % (original_name, name))
+
         options = ['--importPackage', path]
         
         # Fileset-Referenz: entweder existierendes Fileset oder neuer Name
@@ -473,21 +490,22 @@ class FWAdminClient(object):
                 options.append('--setRevisionAsDefault')
 
         import_package_result = self.run_admin(options)
-        
-        # Versuche zuerst Fileset-Pattern (Deutsch)
-        matcher = re.compile(r'neues Fileset mit der ID (?P<id>.+) wurde mit dem Namen')
-        search = matcher.search(import_package_result)
-        
-        # Falls nicht gefunden, versuche Revision-Pattern
-        if not search:
-            matcher = re.compile(r'a new revision with ID (?P<id>.+) was created')
+
+        # Patterns für FileWave Ausgaben
+        patterns = [
+            r'RESULT: a new fileset with ID (?P<id>\d+)',
+            r'RESULT: a new revision with ID (?P<id>\d+)',
+        ]
+
+        for pattern in patterns:
+            matcher = re.compile(pattern, re.IGNORECASE)
             search = matcher.search(import_package_result)
-        
-        if search:
-            id = search.group('id')
-            if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
-                self.create_fs_callback(id)
-            return id
+            if search:
+                id = search.group('id')
+                if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
+                    self.create_fs_callback(id)
+                return id
+
         return None
 
     def set_property(self, fileset_id, prop_name, prop_value):
