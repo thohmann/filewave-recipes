@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the latest Wacom Tablet driver PKG, extracts the app icon, and imports into FileWave with Kiosk information.</string>
+	<key>Identifier</key>
+	<string>com.github.thohmann.filewave.WacomTablet</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>Wacom Tablet</string>
+		<key>WACOM_APP_NAME</key>
+		<string>Wacom Tablet Utility.app</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>0.2.0</string>
+	<key>ParentRecipe</key>
+	<string>com.github.nstrauss.pkg.WacomTablet</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Comment</key>
+			<string>Change ownership of unpack directory if it exists</string>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/PathCHOWN</string>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack</string>
+				<key>user</key>
+				<string>me</string>
+				<key>group</key>
+				<string>staff</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Change ownership of payload directory if it exists</string>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/PathCHOWN</string>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/payload</string>
+				<key>user</key>
+				<string>me</string>
+				<key>group</key>
+				<string>staff</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Change ownership of Icons directory if it exists</string>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/PathCHOWN</string>
+			<key>Arguments</key>
+			<dict>
+				<key>path</key>
+				<string>%RECIPE_CACHE_DIR%/Icons</string>
+				<key>user</key>
+				<string>me</string>
+				<key>group</key>
+				<string>staff</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Clean up leftover directories from previous failed runs</string>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/PathDeleterSafe</string>
+			<key>Arguments</key>
+			<dict>
+				<key>path_list</key>
+				<array>
+					<string>%RECIPE_CACHE_DIR%/unpack</string>
+					<string>%RECIPE_CACHE_DIR%/payload</string>
+					<string>%RECIPE_CACHE_DIR%/Icons</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Unpack the flat PKG to access its contents</string>
+			<key>Processor</key>
+			<string>FlatPkgUnpacker</string>
+			<key>Arguments</key>
+			<dict>
+				<key>flat_pkg_path</key>
+				<string>%pkg_path%</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Unpack the payload to extract the app</string>
+			<key>Processor</key>
+			<string>PkgPayloadUnpacker</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkg_payload_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpack/content.pkg/Payload</string>
+				<key>destination_path</key>
+				<string>%RECIPE_CACHE_DIR%/payload</string>
+				<key>purge_destination</key>
+				<true/>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Find the Wacom app in the unpacked payload</string>
+			<key>Processor</key>
+			<string>FileFinder</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pattern</key>
+				<string>%RECIPE_CACHE_DIR%/payload/**/%WACOM_APP_NAME%</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Create Icons directory in cache</string>
+			<key>Processor</key>
+			<string>PkgRootCreator</string>
+			<key>Arguments</key>
+			<dict>
+				<key>pkgdirs</key>
+				<dict/>
+				<key>pkgroot</key>
+				<string>%RECIPE_CACHE_DIR%/Icons</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Extract the app icon to PNG format</string>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/AppIconExtractor</string>
+			<key>Arguments</key>
+			<dict>
+				<key>app_path</key>
+				<string>%found_filename%</string>
+				<key>output_dir</key>
+				<string>%RECIPE_CACHE_DIR%/Icons</string>
+				<key>output_filename</key>
+				<string>%NAME%</string>
+				<key>icon_size</key>
+				<string>512</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Import the PKG into FileWave</string>
+			<key>Arguments</key>
+			<dict>
+				<key>fw_app_bundle_id</key>
+				<string>com.wacom.tablet</string>
+				<key>fw_app_version</key>
+				<string>%version%</string>
+				<key>fw_fileset_name</key>
+				<string>%NAME% %version% (PKG)</string>
+				<key>fw_import_source</key>
+				<string>%pkg_path%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/FileWaveImporter</string>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Add Kiosk information with extracted icon</string>
+			<key>Arguments</key>
+			<dict>
+				<key>fileset_id</key>
+				<string>%fw_fileset_id%</string>
+				<key>kiosk_title</key>
+				<string>%NAME%</string>
+				<key>kiosk_description</key>
+				<string>Wacom Tablet Treiber für Grafiktabletts und Stifteingabegeräte</string>
+				<key>kiosk_icon_path</key>
+				<string>%icon_path%</string>
+			</dict>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/FileWaveKioskImporter</string>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Clean up temporary directories</string>
+			<key>Processor</key>
+			<string>com.github.thohmann.processors/PathDeleterSafe</string>
+			<key>Arguments</key>
+			<dict>
+				<key>path_list</key>
+				<array>
+					<string>%RECIPE_CACHE_DIR%/Icons</string>
+					<string>%RECIPE_CACHE_DIR%/payload</string>
+					<string>%RECIPE_CACHE_DIR%/unpack</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>
