@@ -2,12 +2,12 @@
 
 from autopkglib import Processor
 import os
-import shutil
+import subprocess
 
 __all__ = ["PathDeleterSafe"]
 
 class PathDeleterSafe(Processor):
-	'''Removes paths (files or directories) if they exist. Does not fail if paths don't exist.'''
+	'''Removes paths (files or directories) if they exist. Does not fail if paths don't exist. Uses sudo rm -rf for robust deletion of protected files.'''
 
 	input_variables = {
 		'path_list': {
@@ -26,12 +26,11 @@ class PathDeleterSafe(Processor):
 		for path in path_list:
 			if os.path.exists(path):
 				try:
-					if os.path.isdir(path):
-						shutil.rmtree(path, ignore_errors=True)
-						self.output('Removed directory: %s' % path)
+					retcode = subprocess.call(['sudo', '/bin/rm', '-rf', path])
+					if retcode == 0:
+						self.output('Removed path: %s' % path)
 					else:
-						os.remove(path)
-						self.output('Removed file: %s' % path)
+						self.output('Warning: Could not remove %s (return code: %d)' % (path, retcode))
 				except Exception as e:
 					self.output('Warning: Could not remove %s: %s' % (path, e))
 			else:
