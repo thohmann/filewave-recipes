@@ -26,11 +26,22 @@ class PathDeleterSafe(Processor):
 		for path in path_list:
 			if os.path.exists(path):
 				try:
-					retcode = subprocess.call(['sudo', '/bin/rm', '-rf', path])
+					proc = subprocess.Popen(
+						['sudo', '/bin/rm', '-rf', path],
+						stdout=subprocess.PIPE,
+						stderr=subprocess.PIPE
+					)
+					stdout, stderr = proc.communicate()
+					retcode = proc.returncode
+
 					if retcode == 0:
 						self.output('Removed path: %s' % path)
 					else:
 						self.output('Warning: Could not remove %s (return code: %d)' % (path, retcode))
+						if stderr:
+							self.output('stderr: %s' % stderr.decode('utf-8'))
+						if stdout:
+							self.output('stdout: %s' % stdout.decode('utf-8'))
 				except Exception as e:
 					self.output('Warning: Could not remove %s: %s' % (path, e))
 			else:
