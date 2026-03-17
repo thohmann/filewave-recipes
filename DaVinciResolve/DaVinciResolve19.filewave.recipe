@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>Description</key>
-	<string>Downloads the current release version of DaVinci Studio 18 and imports into FileWave</string>
+	<string>Downloads the current release version of DaVinci Studio 19 and imports into FileWave</string>
 	<key>Identifier</key>
 	<string>com.github.thohmann.filewave.davinciresolve19</string>
 	<key>Input</key>
