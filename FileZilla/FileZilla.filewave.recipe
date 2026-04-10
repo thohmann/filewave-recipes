@@ -12,33 +12,22 @@
 		<string>FileZilla</string>
         <key>fw_destination_root</key>
         <string>/Applications/%NAME%.app</string>
-		<key>RE_PATTERN</key>
-		<string>&lt;a href=\"(?P&lt;url&gt;http[s]?.*?(?P&lt;filename&gt;FileZilla_(?P&lt;version&gt;[\d.]+)_macos-x86.*?\.tar\.bz2).*?)\"</string>
+		<key>ARCH</key>
+		<string>arm64</string>
+		<key>FW_ARCH</key>
+		<string>Silicon</string>
 	</dict>
 	<key>MinimumVersion</key>
 	<string>0.3.0</string>
 	<key>ParentRecipe</key>
-	<string>com.github.keeleysam.recipes.FileZilla.download</string>
+	<string>com.github.wycomco.download.FileZilla</string>
 	<key>Process</key>
 	<array>
 		<dict>
 			<key>Arguments</key>
 			<dict>
-				<key>archive_path</key>
-				<string>%pathname%</string>
-				<key>destination_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%</string>
-				<key>purge_destination</key>
-				<true/>
-			</dict>
-			<key>Processor</key>
-			<string>Unarchiver</string>
-		</dict>
-		<dict>
-			<key>Arguments</key>
-			<dict>
 				<key>info_path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
 				<key>plist_keys</key>
 				<dict>
 					<key>CFBundleIdentifier</key>
@@ -56,7 +45,7 @@
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
 				<key>user</key>
 				<string>root</string>
 				<key>group</key>
@@ -71,18 +60,18 @@
 				<key>fw_app_version</key>
 				<string>%version%</string>
 				<key>fw_fileset_name</key>
-				<string>%NAME% %version% ab macOS %fw_app_minsysversion% (Programm)</string>
+				<string>%NAME% %version% ab macOS %fw_app_minsysversion% %FW_ARCH% (Programm)</string>
 				<key>fw_import_source</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
 			</dict>
 			<key>Processor</key>
-			<string>com.github.autopkg.filewave.FWTool/FileWaveImporter</string>
+			<string>com.github.thohmann.processors/FileWaveImporter</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
 			<dict>
 				<key>path</key>
-				<string>%RECIPE_CACHE_DIR%/%NAME%/%NAME%.app</string>
+				<string>%RECIPE_CACHE_DIR%/%NAME%.app</string>
 				<key>user</key>
 				<string>me</string>
 				<key>group</key>
