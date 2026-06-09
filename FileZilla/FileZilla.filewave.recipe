@@ -52,7 +52,7 @@
 				<string>admin</string>
 			</dict>
 			<key>Processor</key>
-			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+			<string>com.github.thohmann.processors/PathCHOWN</string>
 		</dict>
 		<dict>
 			<key>Arguments</key>
@@ -78,7 +78,7 @@
 				<string>admin</string>
 			</dict>
 			<key>Processor</key>
-			<string>com.github.thohmann.pathchown/PathCHOWN</string>
+			<string>com.github.thohmann.processors/PathCHOWN</string>
 		</dict>
 	</array>
 </dict>
