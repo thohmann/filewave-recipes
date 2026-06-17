@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Description</key>
+	<string>Downloads the latest LibreOffice. Set RELEASE to either 'Latest' or 'Previous'.
+
+LibreOffice Previous is the stable version that has undergone more testing (over a longer time). It is usually recommended for more conservative use.
+LibreOffice Latest is the stable version with the most recent features. Users interested in taking advantage of our most innovative features should download and use our Latest version.
+The architecture (ARCH) can be 'x86_64' or 'aarch64'
+</string>
+	<key>Identifier</key>
+	<string>io.github.hjuutilainen.download.LibreOffice</string>
+	<key>Input</key>
+	<dict>
+		<key>NAME</key>
+		<string>LibreOffice</string>
+		<key>RELEASE</key>
+		<string>Latest</string>
+		<key>ARCH</key>
+		<string>x86_64</string>
+	</dict>
+	<key>MinimumVersion</key>
+	<string>0.2.0</string>
+	<key>Process</key>
+	<array>
+		<dict>
+			<key>Comment</key>
+			<string>LibreOffice uses both x86_64 AND x86-64 in the download path. Here we build the x86-64 or aarch64 part.</string>
+			<key>Processor</key>
+			<string>CreateLibreOfficeAuxArchName</string>
+			<key>Arguments</key>
+			<dict>
+				<key>arch_name</key>
+				<string>%ARCH%</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>Try to parse the the 'Latest' or 'Previous' version from current release notes</string>
+			<key>Processor</key>
+			<string>URLTextSearcher</string>
+			<key>Arguments</key>
+			<dict>
+				<key>re_pattern</key>
+				<string>LibreOffice\s+(?P&lt;version&gt;\d+\.\d+(?:\.\d+)?)\s+\([^)]+\)\s+-\s+%RELEASE%\s+Branch</string>
+				<key>url</key>
+				<string>https://www.libreoffice.org/release-notes/</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Comment</key>
+			<string>
+				The current (late June 2021) dmg download URL at
+				https://www.libreoffice.org/download/download/?type=mac-x86_64
+				takes us to a JavaScript-heavy page that eventually redirects to
+				the download, but the download is at a predictable URL once we
+				know the version. So we just assemble that URL.
+			</string>
+			<key>Processor</key>
+			<string>URLDownloader</string>
+			<key>Arguments</key>
+			<dict>
+				<key>url</key>
+				<string>https://download.documentfoundation.org/libreoffice/stable/%version%/mac/%ARCH%/LibreOffice_%version%_MacOS_%aux_arch_name%.dmg</string>
+				<key>filename</key>
+				<string>%NAME%-%ARCH%.dmg</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>EndOfCheckPhase</string>
+		</dict>
+		<dict>
+			<key>Processor</key>
+			<string>CodeSignatureVerifier</string>
+			<key>Arguments</key>
+			<dict>
+				<key>input_path</key>
+				<string>%pathname%/LibreOffice.app</string>
+				<key>requirement</key>
+				<string>(identifier "org.libreoffice.script.LibreOffice" or identifier "org.libreoffice.script") and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7P5S3ZLCN7"</string>
+				<key>strict_verification</key>
+				<true />
+			</dict>
+		</dict>
+	</array>
+</dict>
+</plist>
