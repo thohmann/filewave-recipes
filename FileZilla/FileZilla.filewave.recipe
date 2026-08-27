@@ -31,7 +31,7 @@
 				<key>plist_keys</key>
 				<dict>
 					<key>CFBundleIdentifier</key>
-					<string>fw_app_bundle_id</string>
+					<string>bundle_id</string>
 					<key>CFBundleShortVersionString</key>
 					<string>version</string>
 					<key>LSMinimumSystemVersion</key>
@@ -59,6 +59,8 @@
 			<dict>
 				<key>fw_app_version</key>
 				<string>%version%</string>
+				<key>fw_app_bundle_id</key>
+				<string>%bundle_id%.%FW_ARCH%</string>
 				<key>fw_fileset_name</key>
 				<string>%NAME% %version% ab macOS %fw_app_minsysversion% %FW_ARCH% (Programm)</string>
 				<key>fw_import_source</key>
