@@ -65,6 +65,8 @@
 				<string>%NAME% %version% ab macOS %fw_app_minsysversion% %FW_ARCH% (Programm)</string>
 				<key>fw_import_source</key>
 				<string>%RECIPE_CACHE_DIR%/unpacked/%NAME%.app</string>
+				<key>download_path</key>
+				<string>%RECIPE_CACHE_DIR%/unpacked/%NAME%.app</string>
 			</dict>
 			<key>Processor</key>
 			<string>com.github.thohmann.processors/FileWaveImporter</string>
