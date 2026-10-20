@@ -1,0 +1,20 @@
+Description: Creates pkg from Frontify.app
+
+Identifier: com.burda.pkg.Frontify
+ParentRecipe: com.burda.download.Frontify
+MinimumVersion: "2.3"
+Input:
+  NAME: Frontify
+  
+Process:
+  - Processor: AppDmgVersioner
+    Arguments:
+      dmg_path: "%pathname%"
+      
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: "%dmg_path%/%app_name%"
+      requirement: identifier "com.frontify.companion" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] exists and certificate leaf[field.1.2.840.113635.100.6.1.13] exists and certificate leaf[subject.OU] = "6CBM2V5A9A"
+      
+  - Processor: AppPkgCreator
+  

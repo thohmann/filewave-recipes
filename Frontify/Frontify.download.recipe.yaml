@@ -1,0 +1,19 @@
+Description: Downloads latest Frontify release
+
+Identifier: com.burda.download.Frontify
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Frontify
+  GITHUB_REPO: Frontify/frontify-companion-release
+
+Process:
+  - Processor: GitHubReleasesInfoProvider
+    Arguments:
+      github_repo: "%GITHUB_REPO%"
+      asset_regex: ".*\\.dmg"
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.dmg"
+      url: "%url%"
