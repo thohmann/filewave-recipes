@@ -1,7 +1,7 @@
 Description: Creates pkg from Frontify.app
 
-Identifier: com.burda.pkg.Frontify
-ParentRecipe: com.burda.download.Frontify
+Identifier: com.github.thohmann.pkg.Frontify
+ParentRecipe: com.github.thohmann.download.Frontify
 MinimumVersion: "2.3"
 Input:
   NAME: Frontify

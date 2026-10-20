@@ -1,6 +1,6 @@
 Description: Downloads latest Frontify release
 
-Identifier: com.burda.download.Frontify
+Identifier: com.github.thohmann.download.Frontify
 MinimumVersion: "2.3"
 
 Input:
