@@ -1,0 +1,40 @@
+Description: Extracts the original DaVinci Resolve Studio installer package.
+Identifier: com.github.thohmann.pkg.davinciresolvestudio
+ParentRecipe: com.github.thohmann.download.davinciresolvestudio
+MinimumVersion: "2.3"
+
+Input:
+  NAME: DaVinciResolveStudio
+
+Process:
+  - Processor: Unarchiver
+    Arguments:
+      archive_path: "%pathname%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      purge_destination: true
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: "%RECIPE_CACHE_DIR%/unpack/**/*.dmg"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/PKG"
+      continue_on_error: true
+
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgroot: "%RECIPE_CACHE_DIR%/PKG"
+      pkgdirs: {}
+
+  - Processor: PkgCopier
+    Arguments:
+      source_pkg: "%found_filename%/Install Resolve*.pkg"
+      pkg_path: "%RECIPE_CACHE_DIR%/PKG/%NAME%-%version%.pkg"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/unpack"
+      continue_on_error: true

@@ -1,0 +1,16 @@
+Description: Imports the current DaVinci Resolve Studio installer package into FileWave.
+Identifier: com.github.thohmann.filewave.davinciresolvestudio
+ParentRecipe: com.github.thohmann.pkg.davinciresolvestudio
+MinimumVersion: "2.3"
+
+Input:
+  NAME: DaVinciResolveStudio
+  fw_name: DaVinci Resolve Studio
+
+Process:
+  - Processor: com.github.autopkg.filewave.FWTool/FileWaveImporter
+    Arguments:
+      fw_app_bundle_id: com.blackmagicdesign.DaVinciResolveStudio
+      fw_app_version: "%version%"
+      fw_fileset_name: "%fw_name% %fw_app_version% (PKG)"
+      fw_import_source: "%pkg_path%"

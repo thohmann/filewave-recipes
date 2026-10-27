@@ -1,0 +1,37 @@
+Description: Downloads the latest DaVinci Resolve Studio release for the selected major version.
+Identifier: com.github.thohmann.download.davinciresolvestudio
+MinimumVersion: "2.3"
+
+Input:
+  NAME: DaVinciResolveStudio
+  MAJOR_VERSION: "21"
+
+  PRODUCT_NAME_PATTERN: '^DaVinci Resolve Studio (?P<version>%MAJOR_VERSION%(?:\.\d+)*)(?: Update)?$'
+
+  REG_FIRSTNAME: Armin
+  REG_LASTNAME: Keller
+  REG_EMAIL: armin.keller@burda.com
+  REG_PHONE: "2345678"
+  REG_STREET: "Hubert Burda Platz 2"
+  REG_CITY: Offenburg
+  REG_COUNTRY: de
+
+Process:
+  - Processor: BlackMagicURLProvider
+    Arguments:
+      product_name: DaVinci Resolve
+      product_name_pattern: "%PRODUCT_NAME_PATTERN%"
+      registration_info:
+        firstname: "%REG_FIRSTNAME%"
+        lastname: "%REG_LASTNAME%"
+        email: "%REG_EMAIL%"
+        phone: "%REG_PHONE%"
+        street: "%REG_STREET%"
+        city: "%REG_CITY%"
+        country: "%REG_COUNTRY%"
+
+  - Processor: URLDownloader
+    Arguments:
+      filename: "%NAME%.zip"
+
+  - Processor: EndOfCheckPhase
