@@ -1,0 +1,29 @@
+Description: |
+  Downloads the latest ColorNavigator 7 installer package for macOS.
+  Version and download URL are read from EIZO's update JSON (mac entry).
+Identifier: com.github.thohmann.download.ColorNavigator7
+MinimumVersion: '2.3'
+
+Input:
+  NAME: ColorNavigator7
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      url: https://www.eizo.co.jp/update/cn7-update-v2-global.json
+      re_pattern: '"mac":\s*\{\s*"version":\s*"(?P<version>[\d.]+)",\s*"url":\s*"(?P<url>[^"]+\.pkg)"'
+
+  - Processor: URLDownloader
+    Arguments:
+      url: '%url%'
+      filename: '%NAME%.pkg'
+
+  - Processor: EndOfCheckPhase
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: '%pathname%'
+      expected_authority_names:
+        - 'Developer ID Installer: EIZO Corporation (FWVNE2DRY7)'
+        - Developer ID Certification Authority
+        - Apple Root CA

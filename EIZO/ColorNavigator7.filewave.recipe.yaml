@@ -1,0 +1,17 @@
+Description: Downloads the latest ColorNavigator 7 package and imports it into FileWave as a PKG fileset.
+Identifier: com.github.thohmann.filewave.ColorNavigator7
+MinimumVersion: '2.3'
+ParentRecipe: com.github.thohmann.download.ColorNavigator7
+
+Input:
+  NAME: ColorNavigator7
+  fw_name: ColorNavigator
+  fw_app_bundle_id: com.eizo.ColorNavigator7
+
+Process:
+  - Processor: com.github.thohmann.processors/FileWaveImporter
+    Arguments:
+      fw_import_source: '%pathname%'
+      fw_app_bundle_id: '%fw_app_bundle_id%'
+      fw_app_version: '%version%'
+      fw_fileset_name: '%fw_name% %fw_app_version% (PKG)'
