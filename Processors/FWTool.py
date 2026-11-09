@@ -28,13 +28,15 @@ from autopkglib import DmgMounter, Processor, ProcessorError
 # this Processor was imported via autopkg explicitly, the directory is not in
 # the search path.
 sys.path.append(os.path.dirname(__file__))
+import Keychain
+import VersionCompare
 from CommandLine import FWAdminClient
 
 FWTOOL_SUMMARY_RESULT = 'fwtool_summary_result'
 DEFAULT_FW_SERVER_HOST = "localhost"
 DEFAULT_FW_SERVER_PORT = "20016"
 DEFAULT_FW_ADMIN_USERNAME = "fwadmin"
-DEFAULT_FW_ADMIN_PASSWORD = "filewave"
+MINIMUM_FW_VERSION = "10.0.0"
 
 COMMON_FILEWAVE_VARIABLES = {
         "FW_SERVER_HOST": {
@@ -55,12 +57,10 @@ COMMON_FILEWAVE_VARIABLES = {
                             % DEFAULT_FW_ADMIN_USERNAME),
             "required": False,
         },
-        "FW_ADMIN_PASSWORD": {
-            "default": DEFAULT_FW_ADMIN_PASSWORD,
-            "description": ("The password to use when connecting to the FileWave server.  Defaults to %s"
-                            % DEFAULT_FW_ADMIN_PASSWORD),
-            "required": False,
-        },
+        # No FW_ADMIN_PASSWORD entry here on purpose: the password is never
+        # read from the AutoPkg environment (recipe/override/global
+        # preferences) - it's looked up fresh from the macOS Keychain in
+        # validate_tools() below. See Keychain.py.
         "FW_RELAX_VERSION": {
             "default": False,
             "description": "Relax the version check and continue on regardless",
@@ -83,14 +83,28 @@ class FWTool(DmgMounter):
 
     client = None
 
-    def validate_tools(self, print_path=False):
+    def validate_tools(self, print_path=False, list_filesets=True):
 
         self.relaxed_version_check = self.env.get('FW_RELAX_VERSION', False)
 
+        # Defensive scrub: FW_ADMIN_PASSWORD is not a declared input variable
+        # (see COMMON_FILEWAVE_VARIABLES above) so AutoPkg shouldn't populate
+        # it, but if it ends up in env anyway (e.g. a recipe/override still
+        # setting it from before this change), remove it rather than ever
+        # reading or re-exposing it.
+        self.env.pop('FW_ADMIN_PASSWORD', None)
+
+        admin_user = self.env['FW_ADMIN_USER']
+        server_host = self.env['FW_SERVER_HOST']
+        try:
+            admin_password = Keychain.get_admin_password(server_host, admin_user)
+        except Keychain.KeychainError as e:
+            raise ProcessorError(str(e))
+
         self.client = FWAdminClient(
-            admin_name=self.env['FW_ADMIN_USER'],
-            admin_pwd=self.env['FW_ADMIN_PASSWORD'],
-            server_host=self.env['FW_SERVER_HOST'],
+            admin_name=admin_user,
+            admin_pwd=admin_password,
+            server_host=server_host,
             server_port=self.env['FW_SERVER_PORT'],
             print_output=False
         )
@@ -99,8 +113,7 @@ class FWTool(DmgMounter):
             print("Path to Admin Tool:", FWAdminClient.get_admin_tool_path())
 
         self.version = self.client.get_version()
-        self.major, self.minor, self.patch = self.version.split('.')
-        if int(self.major) < 10:
+        if VersionCompare.lt(self.version, MINIMUM_FW_VERSION):
             if self.relaxed_version_check:
                 self.output("FileWave Version 10.0 must be installed - you have version %s" % (self.version))
             else:
@@ -110,18 +123,23 @@ class FWTool(DmgMounter):
         self.exit_status_message = "VALIDATION OK"
         self.exception = None
 
+        if self.env['FW_ADMIN_USER'] == 'fwadmin':
+            self.output("WARNING: You are using the FileWave super-user account (fwadmin)")
+
+        # Only FWTool's own validation run lists filesets here; importers call
+        # validate_tools(list_filesets=False) and list them once themselves.
+        if not list_filesets:
+            return
         try:
             the_filesets = self.client.get_filesets()
             count_filesets = sum(1 for i in the_filesets)
             self.can_list_filesets = "Yes" if count_filesets >= 0 else "No"
         except CalledProcessError as e:
             self.exception = e
-            self.exit_status_message = FWAdminClient.ExitStatusDescription[e.returncode][1]
+            self.exit_status_message = FWAdminClient.ExitStatusDescription.get(
+                e.returncode, (None, "Unknown exit code %s" % e.returncode))[1]
         except Exception as e:
             self.exception = e
-
-        if self.env['FW_ADMIN_USER'] == 'fwadmin':
-            self.output("WARNING: You are using the FileWave super-user account (fwadmin)")
 
     def main(self):
         self.validate_tools(print_path=True)

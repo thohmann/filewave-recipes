@@ -20,7 +20,6 @@ import glob
 import os
 import os.path
 import sys
-from distutils.version import LooseVersion
 
 from autopkglib import Processor, ProcessorError
 
@@ -31,6 +30,7 @@ sys.path.append(os.path.dirname(__file__))
 _current_dir = os.path.dirname(os.path.abspath(__file__))
 if _current_dir not in sys.path:
   sys.path.insert(0, _current_dir)
+import VersionCompare
 from CommandLine import FWAdminClient
 from FWTool import COMMON_FILEWAVE_VARIABLES, FWTool
 
@@ -116,7 +116,7 @@ class FileWaveImporter(FWTool):
             "required": False,
             "description": "The location of a verification script. Needs to be in the imported folder and executable.",
         },
-        # NEU: Revision-Support
+        # Revision support
         "fw_create_revision": {
             "default": False,
             "required": False,
@@ -155,17 +155,25 @@ class FileWaveImporter(FWTool):
 
 
     def main(self):
-        self.validate_tools(print_path=False)
+        self.validate_tools(print_path=False, list_filesets=False)
+
+        # Always reset first: if this run skips (version/revision already
+        # satisfied), fw_fileset_id must not leak a stale value from an
+        # earlier FileWaveImporter step in the same recipe run.
+        self.env['fw_fileset_id'] = None
+        # Same for the summary: AutoPkg reports every step's output variables
+        # that are set, so a skipped step would repeat the previous import.
+        self.env.pop(FILEWAVE_SUMMARY_RESULT, None)
 
         fw_app_bundle_id = self.env.get('fw_app_bundle_id', None)
         fw_app_version = self.env.get('fw_app_version', None)
         
-        # NEU: Hole Revision-Parameter
+        # Get revision parameters
         create_revision = self.env.get('fw_create_revision', False)
         revision_name = self.env.get('fw_revision_name', None)
         set_as_default = self.env.get('fw_set_revision_as_default', False)
-        
-        # Wenn kein revision_name angegeben, nutze fw_app_version
+
+        # If no revision_name was given, fall back to fw_app_version
         if create_revision and not revision_name:
             revision_name = fw_app_version
             if not revision_name:
@@ -173,28 +181,36 @@ class FileWaveImporter(FWTool):
                     "fw_create_revision is True but neither fw_revision_name "
                     "nor fw_app_version is specified."
                 )
-        
-        # Log Revision-Modus
+
+        # Log revision mode
         if create_revision:
-            self.output("Revision-Modus aktiv: Erstelle Revision '%s'" % revision_name)
+            self.output("Revision mode active: creating revision '%s'" % revision_name)
             if set_as_default:
-                self.output("  -> Wird als Standard-Revision gesetzt")
-        
+                self.output("  -> Will be set as the default revision")
+
         check_version = fw_app_bundle_id is not None and fw_app_version is not None
 
         # perform version check by scanning existing filesets?
-        # ÄNDERUNG: Nur wenn NICHT im Revision-Modus
+        # Only when NOT in revision mode
+        existing_names = None
         if check_version and not create_revision:
-            filesets = self.client.get_filesets()
+            filesets = list(self.client.get_filesets())
+            # reused by import_package's name-collision check (one listing per step)
+            existing_names = [fileset.name for fileset in filesets]
             for fileset in filesets:
                 app_bundle_id = fileset.custom_properties.get("autopkg_app_bundle_id", None)
                 app_version = fileset.custom_properties.get("autopkg_app_version", None)
 
                 if app_bundle_id is not None and app_version is not None and \
                                 app_bundle_id == fw_app_bundle_id and \
-                                LooseVersion(app_version) >= LooseVersion(fw_app_version):
+                                VersionCompare.gte(app_version, fw_app_version):
                     self.output("This app version is already satisfied by the fileset %s called '%s' (%s, %s)" %
                           (fileset.id, fileset.name, fw_app_bundle_id, fw_app_version))
+                    # Deliberately NOT setting fw_fileset_id here: this fileset was
+                    # merely found via a server-wide bundle-id/version match, it
+                    # wasn't created/managed by this recipe run. Downstream steps
+                    # (e.g. script importers) should skip rather than modify an
+                    # unrelated (possibly production) fileset.
                     return
 
         import_source = self.env['fw_import_source']
@@ -216,35 +232,38 @@ class FileWaveImporter(FWTool):
         fileset_verification_script = self.env.get('fw_fileset_verification_script', None)
 
         fileset_id = None
-        dmg_mountpoint = None
+        dmg_path = None  # DmgMounter.unmount() takes the dmg's path, not the mountpoint
         filename, file_extension = os.path.splitext(import_source)
 
         try:
             if file_extension in [ ".dmg" ] and find_type_in_dmg is not None:
                 dmg_mountpoint = self.mount(import_source)
+                dmg_path = import_source
                 import_source = self.find_first_in_path(dmg_mountpoint, find_type_in_dmg)
-                file_extension = find_type_in_dmg
+                # with the dot, like the checks below ("pkg" -> ".pkg")
+                file_extension = os.path.splitext(import_source)[1]
 
             try:
                 if file_extension in [ ".pkg", ".mpkg", ".msi" ]:
-                    # ÄNDERUNG: Erweiterte Parameter für Revision-Support
+                    # Extended parameters for revision support
                     fileset_id = self.client.import_package(
                         path=import_source,
                         name=fileset_name,
                         target=fileset_group,
                         create_revision=create_revision,
                         revision_name=revision_name if create_revision else None,
-                        set_as_default=set_as_default if create_revision else False
+                        set_as_default=set_as_default if create_revision else False,
+                        existing_names=existing_names
                     )
-                    
-                    # NEU: Prüfe auf Skip (wenn Revision bereits existiert)
+
+                    # Check for skip (when the revision already exists)
                     if fileset_id is None and create_revision:
-                        self.output("Revision '%s' existiert bereits im Fileset '%s'" % (revision_name, fileset_name))
-                        self.output("Überspringe Import (kein Update notwendig)")
+                        self.output("Revision '%s' already exists in fileset '%s'" % (revision_name, fileset_name))
+                        self.output("Skipping import (no update necessary)")
                         return
-                    
+
                 elif os.path.isdir(import_source):
-                    # ÄNDERUNG: Erweiterte Parameter für Revision-Support
+                    # Extended parameters for revision support
                     fileset_id = self.client.import_folder(
                         path=import_source,
                         name=fileset_name,
@@ -262,31 +281,30 @@ class FileWaveImporter(FWTool):
                         set_as_default=set_as_default if create_revision else False
                     )
                     
-                    # NEU: Prüfe auf Skip (wenn Revision bereits existiert)
+                    # Check for skip (when the revision already exists)
                     if fileset_id is None and create_revision:
-                        self.output("Revision '%s' existiert bereits im Fileset '%s'" % (revision_name, fileset_name))
-                        self.output("Überspringe Import (kein Update notwendig)")
+                        self.output("Revision '%s' already exists in fileset '%s'" % (revision_name, fileset_name))
+                        self.output("Skipping import (no update necessary)")
                         return
 
-                if FILEWAVE_SUMMARY_RESULT in self.env:
-                    del self.env[FILEWAVE_SUMMARY_RESULT]
+                if fileset_id is None:
+                    raise Exception("Import source is neither a .pkg/.mpkg/.msi nor a folder")
+                # import_package appends a number when the name is taken
+                fileset_name = self.client.last_fileset_name or fileset_name
 
-                if fileset_id is not None:
-                    self.env[FILEWAVE_SUMMARY_RESULT] = {
-                        'summary_text': 'The following fileset was imported:',
-                        'report_fields': ['fw_fileset_id', 'fw_fileset_group', 'fw_fileset_name'],
-                        'data': {
-                            'fw_fileset_id': fileset_id,
-                            'fw_fileset_group': fileset_group if fileset_group is not None else "Root",
-                            'fw_fileset_name': fileset_name
-                        }}
+                self.env[FILEWAVE_SUMMARY_RESULT] = {
+                    'summary_text': 'The following fileset was imported:',
+                    'report_fields': ['fw_fileset_id', 'fw_fileset_group', 'fw_fileset_name'],
+                    'data': {
+                        'fw_fileset_id': fileset_id,
+                        'fw_fileset_group': fileset_group if fileset_group is not None else "Root",
+                        'fw_fileset_name': fileset_name
+                    }}
 
-                    self.env['fw_fileset_id'] = fileset_id
-                else:
-                    raise Exception("No fileset imported (error calling FileWave Admin Command Line Console)")
+                self.env['fw_fileset_id'] = fileset_id
 
-                # ÄNDERUNG: Properties nur setzen wenn NICHT im Revision-Modus
-                if fileset_id is not None and check_version and not create_revision:
+                # Only set properties when NOT in revision mode
+                if check_version and not create_revision:
                     # re-write the props back into the fileset
                     self.client.set_property(fileset_id, "autopkg_app_bundle_id", fw_app_bundle_id)
                     self.client.set_property(fileset_id, "autopkg_app_version", fw_app_version)
@@ -296,13 +314,14 @@ class FileWaveImporter(FWTool):
                                      (import_source, fileset_name, e))
 
         finally:
-            if dmg_mountpoint is not None:
-                self.unmount(dmg_mountpoint)
+            if dmg_path is not None:
+                self.unmount(dmg_path)
 
+            # only after a successful import - otherwise an export error would
+            # replace the real import error
             export_fileset = self.env.get('fw_export_fileset', None)
-            if export_fileset is not None:
-                if export_fileset != "":
-                    self.client.export_fileset(export_fileset, fileset_name)
+            if export_fileset and fileset_id is not None:
+                self.client.export_fileset(export_fileset, fileset_name)
 
 if __name__ == '__main__':
     PROCESSOR = FileWaveImporter()

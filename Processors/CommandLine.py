@@ -43,7 +43,8 @@ class Fileset(object):
         self.name = name
         self.type = type
         self.size = size
-        self.custom_properties = custom_properties
+        # Groups and some fileset types come without custom_properties
+        self.custom_properties = custom_properties or {}
         self.parent_id = str(parent_id)
         self.is_critical = kwargs.get('isCritical')
 
@@ -99,6 +100,7 @@ class FWAdminClient(object):
         self.create_fs_callback = create_fs_callback
         self.remove_fs_callback = remove_fs_callback
         self.export_fs_callback = export_fs_callback
+        self.last_fileset_name = None  # name actually used by the last import
 
     @classmethod
     def get_admin_tool_path(cls):
@@ -121,124 +123,198 @@ class FWAdminClient(object):
 
     def run_admin(self, options, include_connection_options=True, error_expected=False, print_output=None, max_retries=3, retry_delay=5):
         """
-        Führt FileWave Admin CLI-Befehl aus mit Retry-Logik für SIGSEGV-Crashes.
+        Runs a FileWave Admin CLI command, with retry logic for SIGSEGV crashes.
         """
         import time
-        
+
         print_output = print_output or self.print_output
         process_options = [self.fwadmin_executable]
         if include_connection_options:
             process_options.extend(self.connection_options)
-            
+
         # Map string type for both Python 2 and Python 3.
         try:
             _ = basestring
         except NameError:
             basestring = str  # pylint: disable=W0622
-            
+
         if isinstance(options, basestring):
             process_options.append(options)
         else:
             process_options.extend(options)
-            
+
         got_error = False
         self.run_result_ret = None
-        
-        # Retry-Schleife
+
+        # Retry loop
         for attempt in range(max_retries):
             try:
                 if print_output:
                     if attempt > 0:
                         print("Retry attempt %d/%d" % (attempt + 1, max_retries))
-                    print(process_options)
-                    
+                    print(self._redact_command(process_options))
+
                 self.run_result_ret = subprocess.check_output(process_options, stderr=subprocess.STDOUT).decode().rstrip()
                 self.run_result_ret = re.sub(r"QObject::connect.*QNetworkSession::State\)\n", '', self.run_result_ret)
                 self.run_result_ret = re.sub(r"qt.network.ssl: Error receiving trust for a CA certificate\n", '', self.run_result_ret)
-                
-                # Erfolg - breche Retry-Schleife ab
+
+                # Success - stop the retry loop
                 break
-            
+
             except CalledProcessError as e:
                 got_error = True
-                
-                # SIGSEGV (-11) oder andere Crash-Fehler
+
+                # str(CalledProcessError) embeds e.cmd verbatim (see the
+                # stdlib's __str__), and this exception tends to travel far -
+                # re-raised here, then often wrapped into a ProcessorError
+                # several call frames up (e.g. FileWaveImporter's "... Reason:
+                # %s" % e) or printed directly (FWTool.main()). Redact the
+                # password at the source so every one of those call sites is
+                # safe without having to remember to sanitize individually.
+                e.cmd = self._redact_command(e.cmd)
+
+                # SIGSEGV (-11) or another crash-type error
                 if e.returncode == -11 and attempt < max_retries - 1:
                     if print_output:
                         print("Command crashed with SIGSEGV (returncode: %d)" % e.returncode)
                         print("Retrying in %d seconds..." % retry_delay)
                     time.sleep(retry_delay)
-                    continue  # Versuche erneut
-                
-                # Letzter Versuch oder anderer Fehler
+                    continue  # try again
+
+                # Last attempt, or a different kind of error
                 if print_output:
                     print("Command failed, error code: ", e.returncode)
                     print("Output: ", e.output)
-                    
+
                 if not error_expected:
                     raise e
                 else:
                     self.run_result_ret = e.output, e.returncode
                     break
-                
+
         if error_expected and not got_error:
             raise Exception("Expected an error, but command was successful")
-            
+
         return self.run_result_ret
+
+    @staticmethod
+    def _redact_command(cmd):
+        """Return a copy of an admin-tool argv list with the -p <password>
+        value masked - safe to print or fold into an exception/error message."""
+        redacted = list(cmd)
+        for i, arg in enumerate(redacted):
+            if arg == '-p' and i + 1 < len(redacted):
+                redacted[i + 1] = '***REDACTED***'
+        return redacted
+
+    @staticmethod
+    def _require_match(matcher, text, what):
+        """Search `text` with `matcher` and return the match, or raise a
+        clear RuntimeError instead of leaving callers to hit
+        AttributeError: 'NoneType' object has no attribute 'group' if the
+        FileWave Admin CLI's output doesn't match the expected pattern
+        (unexpected message, locale, or version)."""
+        search = matcher.search(text)
+        if search is None:
+            raise RuntimeError(
+                "Could not find %s in FileWave Admin output: %r" % (what, text)
+            )
+        return search
+
+    # FileWave Admin's output after --importFolder/--importPackage
+    IMPORT_RESULT_PATTERNS = (
+        re.compile(r'RESULT: a new fileset with ID (?P<id>\d+)', re.IGNORECASE),
+        re.compile(r'RESULT: a new revision with ID (?P<id>\d+)', re.IGNORECASE),
+    )
+
+    def _parse_import_result(self, result):
+        """The new fileset/revision ID from an import's output. Raises instead
+        of returning None, so None from import_folder/import_package always
+        means "revision already exists" and never "import ran but its output
+        wasn't understood"."""
+        for matcher in self.IMPORT_RESULT_PATTERNS:
+            search = matcher.search(result)
+            if search:
+                id = search.group('id')
+                if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
+                    self.create_fs_callback(id)
+                return id
+        raise RuntimeError("Could not find the new fileset/revision ID in FileWave Admin output: %r" % (result,))
+
+    def _prepare_revision(self, name, target, revision_name, set_as_default):
+        """Revision mode: (skip, fileset_exists, set_as_default). Creates the
+        empty fileset first if it doesn't exist yet."""
+        revisions = self.get_fileset_revisions(name)
+        if revision_name and any(rev.get("name") == revision_name for rev in revisions):
+            return True, True, set_as_default
+        if revisions:
+            return False, True, set_as_default
+        print("Creating empty fileset '%s' for revision management..." % name)
+        self.create_empty_fileset(name, target)
+        print("  -> Created empty fileset with 'Initial Revision'")
+        print("  -> First revision '%s' will automatically be set as default" % revision_name)
+        return False, True, True  # The first real revision becomes the default
+
+    @staticmethod
+    def _find_fileset_in_tree(items, name_or_id):
+        """Recursively search a --listFilesets tree for an exact name or ID match."""
+        if not isinstance(items, list):
+            return None
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            if (item.get("name") == name_or_id or
+                str(item.get("id")) == str(name_or_id)):
+                return item
+            if "children" in item:
+                result = FWAdminClient._find_fileset_in_tree(item["children"], name_or_id)
+                if result:
+                    return result
+        return None
+
+    def get_fileset(self, name_or_id):
+        """
+        Fetches the raw fileset dict (id, name, revisions, ...) for an exact
+        name or ID match.
+
+        Args:
+            name_or_id: Name or ID of the fileset
+
+        Returns:
+            The fileset dict, or None if not found. Errors listing the
+            filesets propagate: treating them as "not found" would make
+            revision mode create a duplicate fileset or re-import a revision.
+        """
+        filesets = json.loads(self.run_admin("--listFilesets"))
+        return self._find_fileset_in_tree(filesets, name_or_id)
 
     def get_fileset_revisions(self, fileset_name_or_id):
         """
-        Holt Revisionen für ein Fileset.
-        
+        Fetches the revisions for a fileset.
+
         Args:
-            fileset_name_or_id: Name oder ID des Filesets
-            
+            fileset_name_or_id: Name or ID of the fileset
+
         Returns:
-            Liste von Revision-Dictionaries oder leere Liste
+            List of revision dicts, or an empty list
         """
-        try:
-            filesets_json = self.run_admin("--listFilesets")
-            filesets = json.loads(filesets_json)
-            
-            # Rekursiv durch Struktur suchen
-            def find_fileset(items):
-                if not isinstance(items, list):
-                    return None
-                for item in items:
-                    if not isinstance(item, dict):
-                        continue
-                    # Prüfe auf Name oder ID Match
-                    if (item.get("name") == fileset_name_or_id or 
-                        str(item.get("id")) == str(fileset_name_or_id)):
-                        return item
-                    # Rekursiv durch children
-                    if "children" in item:
-                        result = find_fileset(item["children"])
-                        if result:
-                            return result
-                return None
-            
-            fileset = find_fileset(filesets)
-            return fileset.get("revisions", []) if fileset else []
-            
-        except Exception as e:
-            # Bei Fehler leere Liste zurückgeben
-            return []
+        fileset = self.get_fileset(fileset_name_or_id)
+        return fileset.get("revisions", []) if fileset else []
 
     def revision_exists(self, fileset_name, revision_name):
         """
-        Prüft ob eine Revision mit dem Namen bereits existiert.
-        
+        Checks whether a revision with the given name already exists.
+
         Args:
-            fileset_name: Name des Filesets
-            revision_name: Name der Revision
-            
+            fileset_name: Name of the fileset
+            revision_name: Name of the revision
+
         Returns:
-            True wenn Revision existiert, False sonst
+            True if the revision exists, False otherwise
         """
         revisions = self.get_fileset_revisions(fileset_name)
         return any(rev.get("name") == revision_name for rev in revisions)
-    
+
     def get_version(self):
         version = self.run_admin("-v")
         return version
@@ -318,7 +394,7 @@ class FWAdminClient(object):
 
         import_folder_result = self.run_admin(options)
         matcher = re.compile(r'new fileset with ID (?P<id>.+) was created')
-        search = matcher.search(import_folder_result)
+        search = self._require_match(matcher, import_folder_result, "the new fileset ID")
         id = search.group('id')
         if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
             self.create_fs_callback(id)
@@ -328,7 +404,7 @@ class FWAdminClient(object):
         options = [ '--exportFileset', destination, '--fileset', fs_name, '--name', fs_name]
         export_result = self.run_admin(options)
         matcher = re.compile(r'the fileset with ID (?P<id>.+) was exported to \'(?P<to>.+)\'')
-        search = matcher.search(export_result)
+        search = self._require_match(matcher, export_result, "the exported fileset ID")
         id = search.group('id')
         dest = search.group('to')
         if self.export_fs_callback and hasattr(self.export_fs_callback, '__call__'):
@@ -337,51 +413,39 @@ class FWAdminClient(object):
 
     def import_folder(self, path, name=None, root=None, target=None, activation_script=None, requirements_script=None, preflight_script=None, postflight_script=None, preuninstallation_script=None, postuninstallation_script=None, verification_script=None, create_revision=False, revision_name=None, set_as_default=False):
         """
-        Importiert einen Ordner als Fileset mit Revision-Support.
+        Imports a folder as a fileset, with revision support. Returns the new
+        fileset/revision ID, or None if the revision already exists.
         """
-        # Prüfe ob Revision bereits existiert (nur wenn create_revision=True)
-        if create_revision and revision_name and name:
-            if self.revision_exists(name, revision_name):
-                return None  # Skip
-        
-        # Prüfe ob Fileset existiert für Revision-Modus
+        self.last_fileset_name = name
         fileset_exists = False
         if create_revision and name:
-            fileset_revisions = self.get_fileset_revisions(name)
-            fileset_exists = len(fileset_revisions) > 0
-            
-            # Wenn Fileset nicht existiert, erstelle leeres Fileset
-            if not fileset_exists:
-                print("Erstelle leeres Fileset '%s' für Revisions-Management..." % name)
-                self.create_empty_fileset(name, target)
-                print("  -> Leeres Fileset mit 'Initial Revision' erstellt")
-                print("  -> Erste Revision '%s' wird automatisch als Default gesetzt" % revision_name)
-                fileset_exists = True
-                set_as_default = True  # Erste echte Revision wird Default
-        
+            skip, fileset_exists, set_as_default = self._prepare_revision(name, target, revision_name, set_as_default)
+            if skip:
+                return None
+
         options = ['--importFolder', path]
-        
-        # Fileset-Referenz: entweder existierendes Fileset oder neuer Name
+
+        # Fileset reference: either an existing fileset, or a new name
         if create_revision and fileset_exists:
             options.extend(['--fileset', name])
         elif name:
             options.extend(['--name', name])
-        
-        # Root-Pfad (immer wenn angegeben)
+
+        # Root path (whenever given)
         if root:
             options.extend(['--root', root])
-        
-        # Fileset-Gruppe (nur bei neuem Fileset)
+
+        # Fileset group (only for a brand-new fileset)
         if target and not (create_revision and fileset_exists):
             options.extend(['--filesetgroup', str(target)])
-        
-        # Revision-Parameter (nur im Revision-Modus)
+
+        # Revision parameters (only in revision mode)
         if create_revision and revision_name:
             options.extend(['--revision', revision_name])
             if set_as_default:
                 options.append('--setRevisionAsDefault')
-        
-        # Scripts (immer wenn angegeben)
+
+        # Scripts (whenever given)
         if activation_script:
             options.extend(['--addActivationScript', str(activation_script)])
         if requirements_script:
@@ -397,116 +461,76 @@ class FWAdminClient(object):
         if verification_script:
             options.extend(['--addVerificationScript', str(verification_script)])
 
-        import_folder_result = self.run_admin(options)
-
-        # Patterns für FileWave Ausgaben
-        patterns = [
-            r'RESULT: a new fileset with ID (?P<id>\d+)',
-            r'RESULT: a new revision with ID (?P<id>\d+)',
-        ]
-
-        for pattern in patterns:
-            matcher = re.compile(pattern, re.IGNORECASE)
-            search = matcher.search(import_folder_result)
-            if search:
-                id = search.group('id')
-                if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
-                    self.create_fs_callback(id)
-                return id
-
-        return None
+        return self._parse_import_result(self.run_admin(options))
 
     def import_image(self, path, error_expected=False):
         options = ['--importImage', path]
         import_image_result = self.run_admin( options, error_expected=error_expected )
         matcher = re.compile( r'new imaging fileset with ID (?P<id>.+) was created')
-        search = matcher.search(import_image_result)
+        search = self._require_match(matcher, import_image_result, "the new imaging fileset ID")
         id = search.group('id')
         if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
             self.create_fs_callback(id)
         return id
 
-    def import_package(self, path, name=None, root=None, target=None, 
-                      create_revision=False, revision_name=None, set_as_default=False):
+    def import_package(self, path, name=None, root=None, target=None,
+                      create_revision=False, revision_name=None, set_as_default=False,
+                      existing_names=None):
         """
-        Importiert ein Package als Fileset mit Revision-Support.
+        Imports a package as a fileset, with revision support. Returns the new
+        fileset/revision ID, or None if the revision already exists. Outside
+        revision mode a taken name gets a number appended; the name actually
+        used is in self.last_fileset_name. `existing_names` saves a
+        --listFilesets call when the caller already listed the filesets.
         """
-        # Prüfe ob Revision bereits existiert (nur wenn create_revision=True)
-        if create_revision and revision_name and name:
-            if self.revision_exists(name, revision_name):
-                return None  # Skip
-        
-        # Prüfe ob Fileset existiert für Revision-Modus
         fileset_exists = False
         if create_revision and name:
-            fileset_revisions = self.get_fileset_revisions(name)
-            fileset_exists = len(fileset_revisions) > 0
-            
-            # Wenn Fileset nicht existiert, erstelle leeres Fileset
-            if not fileset_exists:
-                print("Erstelle leeres Fileset '%s' für Revisions-Management..." % name)
-                self.create_empty_fileset(name, target)
-                print("  -> Leeres Fileset mit 'Initial Revision' erstellt")
-                print("  -> Erste Revision '%s' wird automatisch als Default gesetzt" % revision_name)
-                fileset_exists = True
-                set_as_default = True  # Erste echte Revision wird Default
+            skip, fileset_exists, set_as_default = self._prepare_revision(name, target, revision_name, set_as_default)
+            if skip:
+                self.last_fileset_name = name
+                return None
 
-        # Prüfe auf Namenskollision (nur wenn kein Revision-Modus)
+        # Check for a name collision (only outside revision mode)
         if not create_revision and name:
             original_name = name
             counter = 1
 
-            # Hole alle existierenden Fileset-Namen
-            existing_names = [fs.name for fs in self.get_filesets()]
+            if existing_names is None:
+                existing_names = [fs.name for fs in self.get_filesets()]
+            existing_names = set(existing_names)
 
-            # Füge Nummerierung hinzu wenn Name bereits existiert
+            # Append a number if the name already exists
             while name in existing_names:
                 name = "%s %d" % (original_name, counter)
                 counter += 1
 
             if name != original_name:
-                print("Fileset '%s' existiert bereits. Verwende Namen: '%s'" % (original_name, name))
+                print("Fileset '%s' already exists. Using name: '%s'" % (original_name, name))
 
         options = ['--importPackage', path]
-        
-        # Fileset-Referenz: entweder existierendes Fileset oder neuer Name
+
+        # Fileset reference: either an existing fileset, or a new name
         if create_revision and fileset_exists:
             options.extend(['--fileset', name])
         elif name:
             options.extend(['--name', name])
-        
-        # Root-Pfad (immer wenn angegeben)
+
+        # Root path (whenever given)
         if root:
             options.extend(['--root', root])
-        
-        # Fileset-Gruppe (nur bei neuem Fileset)
+
+        # Fileset group (only for a brand-new fileset)
         if target and not (create_revision and fileset_exists):
             options.extend(['--filesetgroup', str(target)])
-        
-        # Revision-Parameter (nur im Revision-Modus)
+
+        # Revision parameters (only in revision mode)
         if create_revision and revision_name:
             options.extend(['--revision', revision_name])
             if set_as_default:
                 options.append('--setRevisionAsDefault')
 
-        import_package_result = self.run_admin(options)
-
-        # Patterns für FileWave Ausgaben
-        patterns = [
-            r'RESULT: a new fileset with ID (?P<id>\d+)',
-            r'RESULT: a new revision with ID (?P<id>\d+)',
-        ]
-
-        for pattern in patterns:
-            matcher = re.compile(pattern, re.IGNORECASE)
-            search = matcher.search(import_package_result)
-            if search:
-                id = search.group('id')
-                if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
-                    self.create_fs_callback(id)
-                return id
-
-        return None
+        self.last_fileset_name = name
+        return self._parse_import_result(self.run_admin(options))
 
     def set_property(self, fileset_id, prop_name, prop_value):
         options = ['--fileset', fileset_id, '--setProperty', '--key', prop_name, '--value', prop_value]
@@ -532,7 +556,7 @@ class FWAdminClient(object):
         create_empty_fileset_result = self.run_admin(options)
         print(create_empty_fileset_result)
         matcher = re.compile(r'new fileset (?P<id>.+) created with name (?P<name>.+)')
-        search = matcher.search(create_empty_fileset_result)
+        search = self._require_match(matcher, create_empty_fileset_result, "the new fileset ID")
         id = search.group('id')
         if self.create_fs_callback and hasattr(self.create_fs_callback, '__call__'):
             self.create_fs_callback(id)
