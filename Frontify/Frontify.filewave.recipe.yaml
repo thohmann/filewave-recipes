@@ -1,0 +1,45 @@
+Description: Lädt Frontify über das Parent-Recipe herunter und pflegt ein Installation-Fileset sowie ein Update-Fileset (klassischer Modus, neues Fileset pro Version). Jedes Paar aus FileWaveImporter/FileWaveScriptImporter steht direkt hintereinander, damit fw_fileset_id nicht zwischen den beiden Zielen vertauscht wird. Ein Platzhalter-Fileset mit Custom Property autopkg_dependency_bundle_id=com.frontify.companion.Installation muss einmalig manuell angelegt sein; die Release-Pipeline (filewave-release) hängt dessen Dependency um. Die Release-Pipeline (filewave-release) verteilt das Update nach Ringen. Dieses Recipe baut nur.
+Identifier: com.github.thohmann.filewave.Frontify
+ParentRecipe: com.github.thohmann.pkg.Frontify
+MinimumVersion: 1.0.0
+Input:
+  NAME: Frontify
+  APP_NAME: Frontify
+  APP_BUNDLE_ID: com.frontify.companion
+Process:
+- Processor: FileWaveImporter
+  Arguments:
+    fw_fileset_type: Installation
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%fw_fileset_type%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+- Processor: FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: ''
+        MODE: '%fw_fileset_type%'
+- Processor: FileWaveImporter
+  Arguments:
+    fw_fileset_type: Update
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%fw_fileset_type%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+    fw_revision_name: null
+    fw_set_revision_as_default: false
+- Processor: FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: '%version%'
+        MODE: '%fw_fileset_type%'
