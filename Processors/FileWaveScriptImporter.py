@@ -43,6 +43,7 @@ TEMPLATE_REGISTRY = {
     "app_running_check": "app_running_check.sh",
     "install_update_requirement": "install_update_requirement.sh",
     "cleanup_paths_and_receipts": "cleanup_paths_and_receipts.sh",
+    "adobe_uninstall": "adobe_uninstall.sh",
 }
 
 # AutoPkg-style %VAR% placeholders.

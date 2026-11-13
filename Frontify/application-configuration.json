@@ -1,5 +1,6 @@
 {
   "domain": "brand.burda.com",
   "applicationName": "Burda Brand Hub",
-  "autoUpdateEnabled": false
+  "autoUpdateEnabled": false,
+  "autostartApp": true
 }
