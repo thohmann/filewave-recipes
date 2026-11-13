@@ -44,6 +44,7 @@ TEMPLATE_REGISTRY = {
     "install_update_requirement": "install_update_requirement.sh",
     "cleanup_paths_and_receipts": "cleanup_paths_and_receipts.sh",
     "adobe_uninstall": "adobe_uninstall.sh",
+    "acrobat_uninstall": "acrobat_uninstall.sh",
 }
 
 # AutoPkg-style %VAR% placeholders.

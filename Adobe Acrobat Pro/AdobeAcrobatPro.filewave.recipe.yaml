@@ -1,4 +1,4 @@
-Description: Lädt Adobe Acrobat Pro über das Parent-Recipe herunter und pflegt ein Installation-Fileset sowie ein Update-Fileset (klassischer Modus, neues Fileset pro Version). Jedes Paar aus FileWaveImporter/FileWaveScriptImporter steht direkt hintereinander, damit fw_fileset_id nicht zwischen den beiden Zielen vertauscht wird. Ein Platzhalter-Fileset mit Custom Property autopkg_dependency_bundle_id=com.adobe.Acrobat.Pro.Installation muss einmalig manuell angelegt sein; die Release-Pipeline (filewave-release) hängt dessen Dependency um. Die Release-Pipeline (filewave-release) verteilt das Update nach Ringen. Dieses Recipe baut nur.
+Description: Lädt Adobe Acrobat Pro über das Parent-Recipe herunter und pflegt ein Installation-Fileset sowie ein Update-Fileset (klassischer Modus, neues Fileset pro Version). Jedes Paar aus FileWaveImporter/FileWaveScriptImporter steht direkt hintereinander, damit fw_fileset_id nicht zwischen den beiden Zielen vertauscht wird. Das Platzhalter-Fileset mit Custom Property autopkg_dependency_bundle_id=com.adobe.Acrobat.Pro.Installation legt das Recipe einmalig an (Uninstall-Skript, Kiosk-Angaben) und fasst es danach nicht mehr an; die Release-Pipeline (filewave-release) hängt dessen Dependency um. Die Release-Pipeline (filewave-release) verteilt das Update nach Ringen. Dieses Recipe baut nur.
 Identifier: com.github.thohmann.filewave.AdobeAcrobatPro
 ParentRecipe: com.github.moofit-recipes.pkg.AdobeAcrobatPro
 MinimumVersion: 1.0.0
@@ -7,6 +7,7 @@ Input:
   APP_NAME: Adobe Acrobat DC/Adobe Acrobat
   APP_BUNDLE_ID: com.adobe.Acrobat.Pro
   ACTION_IF_RUNNING: skip
+  KIOSK_DESCRIPTION: ''
 Process:
 - Processor: com.github.thohmann.processors/FileWaveImporter
   Arguments:
@@ -50,3 +51,20 @@ Process:
         APP_NAME: '%APP_NAME%'
         REQUIRED_VERSION: '%version%'
         MODE: '%fw_fileset_type%'
+- Processor: com.github.thohmann.processors/FileWavePlaceholderImporter
+  Arguments:
+    fw_placeholder_name: '%NAME% (App)'
+    fw_dependency_bundle_id: '%APP_BUNDLE_ID%.Installation'
+    fw_icon_source: '%pkg_path%'
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: acrobat_uninstall
+      script_type: postUninstallationScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+- Processor: com.github.thohmann.processors/FileWaveKioskImporter
+  Arguments:
+    fileset_id: '%fw_fileset_id%'
+    kiosk_title: '%NAME%'
+    kiosk_description: '%KIOSK_DESCRIPTION%'

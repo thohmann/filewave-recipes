@@ -1,0 +1,12 @@
+Description: Ersetzt den Download für Adobe-Apps. Sucht unter ADOBE_PACKAGES_DIR (AutoPkg-Plist, Standard /Users/Shared/AdobePackages) das neueste Paket aus der Adobe Admin Console für APP_NAME und liefert pkg_path und version. Die Pakete werden von Hand in der Admin Console gebaut und dort abgelegt. Der Ordner ist ein Arbeitsordner. Liegt kein Paket für die App darin, endet das Rezept ohne Fehler; der letzte Schritt der FileWave-Rezepte (AdobePackageArchiver) verschiebt erledigte Pakete nach ADOBE_ARCHIVE_DIR (Standard <ADOBE_PACKAGES_DIR>/_Archiv). Als Parent für die *.filewave-Rezepte der Adobe-Apps gedacht; ARCH = Adobe-Plattform (macuniversal, macarm64, osx10-64).
+Identifier: com.github.thohmann.pkg.AdobeAdminConsolePackage
+MinimumVersion: 1.0.0
+Input:
+  NAME: Adobe App
+  APP_NAME: ''
+  ARCH: ''
+Process:
+- Processor: com.github.thohmann.processors/AdobeAdminConsolePackageFinder
+  Arguments:
+    adobe_app_name: '%APP_NAME%'
+    adobe_platform: '%ARCH%'
