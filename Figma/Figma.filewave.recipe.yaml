@@ -1,0 +1,69 @@
+Description: Lädt Figma über das Parent-Recipe herunter und pflegt ein Installation-Fileset sowie ein Update-Fileset (klassischer Modus, neues Fileset pro Version). Jedes Paar aus FileWaveImporter/FileWaveScriptImporter steht direkt hintereinander, damit fw_fileset_id nicht zwischen den beiden Zielen vertauscht wird. Das Platzhalter-Fileset mit Custom Property autopkg_dependency_bundle_id=com.figma.Desktop.Installation.Silicon legt das Recipe einmalig an (Uninstall-Skript, Kiosk-Angaben) und fasst es danach nicht mehr an; die Release-Pipeline (filewave-release) hängt dessen Dependency um. Die Release-Pipeline (filewave-release) verteilt das Update nach Ringen. Dieses Recipe baut nur.
+Identifier: com.github.thohmann.filewave.Figma
+ParentRecipe: com.github.thohmann.pkg.Figma
+MinimumVersion: 1.0.0
+Input:
+  NAME: Figma
+  APP_NAME: Figma
+  APP_BUNDLE_ID: com.figma.Desktop
+  ARCH: mac-arm
+  fw_required_architectures: Silicon
+  KIOSK_DESCRIPTION: ''
+Process:
+- Processor: com.github.thohmann.processors/FileWaveImporter
+  Arguments:
+    fw_fileset_type: Installation
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_required_architectures% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%fw_fileset_type%.%fw_required_architectures%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+- Processor: com.github.thohmann.processors/FileWavePlatformRequirementsImporter
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: ''
+        MODE: '%fw_fileset_type%'
+- Processor: com.github.thohmann.processors/FileWaveImporter
+  Arguments:
+    fw_fileset_type: Update
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_required_architectures% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%fw_fileset_type%.%fw_required_architectures%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+    fw_revision_name: null
+    fw_set_revision_as_default: false
+- Processor: com.github.thohmann.processors/FileWavePlatformRequirementsImporter
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: '%version%'
+        MODE: '%fw_fileset_type%'
+- Processor: com.github.thohmann.processors/FileWavePlaceholderImporter
+  Arguments:
+    fw_placeholder_name: '%NAME% %fw_required_architectures% (App)'
+    fw_dependency_bundle_id: '%APP_BUNDLE_ID%.Installation.%fw_required_architectures%'
+    fw_icon_source: '%pkg_path%'
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: cleanup_paths_and_receipts
+      script_type: postUninstallationScripts
+      variables:
+        PATHS_TO_DELETE:
+        - /Applications/%APP_NAME%.app
+        PKG_RECEIPTS_TO_FORGET: []
+- Processor: com.github.thohmann.processors/FileWaveKioskImporter
+  Arguments:
+    fileset_id: '%fw_fileset_id%'
+    kiosk_title: '%NAME%'
+    kiosk_description: '%KIOSK_DESCRIPTION%'

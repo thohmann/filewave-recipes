@@ -1,0 +1,44 @@
+Description: Baut aus dem dataJAR-Download (Figma.zip, Apple Silicon) ein Paket mit Version, wie com.github.dataJAR-recipes.pkg.Figma, räumt aber hinter sich auf. Das Paket liegt im Ordner pkg (pkg_path), der vorher geleert wird; so liegt dort immer nur die aktuelle Version. Die entpackte App und der pkgroot werden nach dem Bauen gelöscht.
+Identifier: com.github.thohmann.pkg.Figma
+ParentRecipe: com.github.dataJAR-recipes.download.Figma
+MinimumVersion: 1.1.0
+Input:
+  NAME: Figma
+Process:
+- Processor: PkgRootCreator
+  Comment: Leert den Ordner pkg (legt ihn neu an), damit nur das aktuelle Paket darin liegt.
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkg'
+    pkgdirs: {}
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    source_path: '%RECIPE_CACHE_DIR%/%NAME%/Figma.app'
+    destination_path: '%pkgroot%/Applications/Figma.app'
+    overwrite: true
+- Processor: PlistReader
+  Arguments:
+    info_path: '%pkgroot%/Applications/Figma.app'
+    plist_keys:
+      CFBundleIdentifier: bundleid
+      CFBundleShortVersionString: version
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgdir: '%RECIPE_CACHE_DIR%/pkg'
+      pkgname: '%NAME%-%version%'
+      id: '%bundleid%'
+      chown:
+      - path: Applications
+        user: root
+        group: admin
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/%NAME%'
+    - '%RECIPE_CACHE_DIR%/pkgroot'
