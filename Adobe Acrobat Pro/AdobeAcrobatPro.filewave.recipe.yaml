@@ -1,13 +1,15 @@
 Description: Lädt Adobe Acrobat Pro über das Parent-Recipe herunter und pflegt ein Installation-Fileset sowie ein Update-Fileset (klassischer Modus, neues Fileset pro Version). Jedes Paar aus FileWaveImporter/FileWaveScriptImporter steht direkt hintereinander, damit fw_fileset_id nicht zwischen den beiden Zielen vertauscht wird. Das Platzhalter-Fileset mit Custom Property autopkg_dependency_bundle_id=com.adobe.Acrobat.Pro.Installation legt das Recipe einmalig an (Uninstall-Skript, Kiosk-Angaben) und fasst es danach nicht mehr an; die Release-Pipeline (filewave-release) hängt dessen Dependency um. Die Release-Pipeline (filewave-release) verteilt das Update nach Ringen. Dieses Recipe baut nur.
 Identifier: com.github.thohmann.filewave.AdobeAcrobatPro
-ParentRecipe: com.github.moofit-recipes.pkg.AdobeAcrobatPro
+ParentRecipe: com.github.thohmann.pkg.AdobeAcrobatDC
 MinimumVersion: 1.0.0
 Input:
   NAME: Adobe Acrobat Pro
   APP_NAME: Adobe Acrobat DC/Adobe Acrobat
   APP_BUNDLE_ID: com.adobe.Acrobat.Pro
   ACTION_IF_RUNNING: skip
-  KIOSK_DESCRIPTION: ''
+  KIOSK_DESCRIPTION: '- Jede Version von Acrobat muss bei Installation oder Deinstallation geschlossen sein.
+
+    - Für die Nutzung der App sind ein aktives CC-Abonnement, eine gültige Adobe-ID sowie das zugehörige Passwort erforderlich. Die Bestellung der entsprechenden Abo-Nutzungslizenz erfolgt über das self Service Portal.'
 Process:
 - Processor: com.github.thohmann.processors/FileWaveImporter
   Arguments:
