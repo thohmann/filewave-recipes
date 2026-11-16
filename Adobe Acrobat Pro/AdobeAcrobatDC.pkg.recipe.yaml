@@ -1,9 +1,12 @@
-Description: Liefert das Acrobat-Paket aus dem dataJAR-Download (Unified Application, MUI-Paket wie aus der Admin Console) mit Version. Liest die Version (CFBundleVersion, wie das moofit-Recipe) aus der App im Teilpaket application_mini.pkg und kopiert das signierte Paket unverändert nach pkg_path.
+Description: Liefert das Acrobat-Paket aus dem dataJAR-Download (Unified Application, MUI-Paket wie aus der Admin Console) mit Version. Liest die Version (CFBundleVersion, wie das moofit-Recipe) aus der App im Teilpaket application_mini.pkg und kopiert das signierte Paket unverändert in den Ordner pkg (pkg_path), der vorher geleert wird; so liegt dort immer nur die aktuelle Version.
 Identifier: com.github.thohmann.pkg.AdobeAcrobatDC
 ParentRecipe: com.github.dataJAR-recipes.download.Adobe Acrobat DC Unified Application
 MinimumVersion: 1.1.0
 Input:
   NAME: AdobeAcrobatDC
+  # Fester Name für den URLDownloader des dataJAR-Parents: jede neue Version
+  # überschreibt die alte in downloads/, statt daneben liegen zu bleiben.
+  filename: AdobeAcrobatDC.pkg
 Process:
 - Processor: FlatPkgUnpacker
   Arguments:
@@ -19,10 +22,15 @@ Process:
   Arguments:
     input_plist_path: '%RECIPE_CACHE_DIR%/unpack/pkgroot/Adobe Acrobat.app/Contents/Info.plist'
     plist_version_key: CFBundleVersion
+- Processor: PkgRootCreator
+  Comment: Leert den Ordner pkg (legt ihn neu an), damit nur das aktuelle Paket darin liegt.
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkg'
+    pkgdirs: {}
 - Processor: PkgCopier
   Arguments:
     source_pkg: '%pathname%'
-    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg'
+    pkg_path: '%RECIPE_CACHE_DIR%/pkg/%NAME%-%version%.pkg'
 - Processor: PathDeleter
   Arguments:
     path_list:
