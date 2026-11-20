@@ -1,4 +1,4 @@
-Description: Lädt Adobe Illustrator 2026 über das Parent-Recipe herunter und pflegt ein Installation-Fileset sowie ein Update-Fileset (klassischer Modus, neues Fileset pro Version). Jedes Paar aus FileWaveImporter/FileWaveScriptImporter steht direkt hintereinander, damit fw_fileset_id nicht zwischen den beiden Zielen vertauscht wird. Das Platzhalter-Fileset mit Custom Property autopkg_dependency_bundle_id=com.adobe.illustrator.2026.Installation legt das Recipe einmalig an (Uninstall-Skript, Kiosk-Angaben) und fasst es danach nicht mehr an; die Release-Pipeline (filewave-release) hängt dessen Dependency um. Die Release-Pipeline (filewave-release) verteilt das Update nach Ringen. Dieses Recipe baut nur.
+Description: Importiert jede neue Version von Adobe Illustrator 2026 in FileWave als Installation- und Update-Fileset und legt einmalig das Platzhalter-Fileset für den Kiosk an.
 Identifier: com.github.thohmann.filewave.AdobeIllustrator2026
 ParentRecipe: com.github.thohmann.pkg.AdobeAdminConsolePackage
 MinimumVersion: 1.0.0

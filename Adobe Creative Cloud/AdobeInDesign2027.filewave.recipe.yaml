@@ -1,4 +1,4 @@
-Description: Lädt Adobe InDesign 2027 über das Parent-Recipe herunter und pflegt ein Installation-Fileset sowie ein Update-Fileset (klassischer Modus, neues Fileset pro Version). Jedes Paar aus FileWaveImporter/FileWaveScriptImporter steht direkt hintereinander, damit fw_fileset_id nicht zwischen den beiden Zielen vertauscht wird. Das Platzhalter-Fileset mit Custom Property autopkg_dependency_bundle_id=com.adobe.InDesign.2027.Installation legt das Recipe einmalig an (Uninstall-Skript, Kiosk-Angaben) und fasst es danach nicht mehr an; die Release-Pipeline (filewave-release) hängt dessen Dependency um. Die Release-Pipeline (filewave-release) verteilt das Update nach Ringen. Dieses Recipe baut nur.
+Description: Importiert jede neue Version von Adobe InDesign 2027 in FileWave als Installation- und Update-Fileset und legt einmalig das Platzhalter-Fileset für den Kiosk an.
 Identifier: com.github.thohmann.filewave.AdobeInDesign2027
 ParentRecipe: com.github.thohmann.pkg.AdobeAdminConsolePackage
 MinimumVersion: 1.0.0
@@ -8,7 +8,9 @@ Input:
   APP_BUNDLE_ID: com.adobe.InDesign
   APP_EDITION: '2027'
   ACTION_IF_RUNNING: skip
-  KIOSK_DESCRIPTION: ''
+  KIOSK_DESCRIPTION: '- Jede Version von InDesign muss bei Installation oder Deinstallation geschlossen sein.
+
+    - Für die Nutzung der App sind ein aktives CC-Abonnement, eine gültige Adobe-ID sowie das zugehörige Passwort erforderlich. Die Bestellung der entsprechenden Abo-Nutzungslizenz erfolgt über das self Service Portal.'
 Process:
 - Processor: com.github.thohmann.processors/FileWaveImporter
   Arguments:

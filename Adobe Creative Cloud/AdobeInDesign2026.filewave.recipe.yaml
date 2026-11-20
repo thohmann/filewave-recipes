@@ -1,0 +1,76 @@
+Description: Importiert jede neue Version von Adobe InDesign 2026 in FileWave als Installation- und Update-Fileset und legt einmalig das Platzhalter-Fileset für den Kiosk an.
+Identifier: com.github.thohmann.filewave.AdobeInDesign2026
+ParentRecipe: com.github.thohmann.pkg.AdobeAdminConsolePackage
+MinimumVersion: 1.0.0
+Input:
+  NAME: Adobe InDesign 2026
+  APP_NAME: Adobe InDesign 2026/Adobe InDesign 2026
+  APP_BUNDLE_ID: com.adobe.InDesign
+  APP_EDITION: '2026'
+  ACTION_IF_RUNNING: skip
+  KIOSK_DESCRIPTION: '- Jede Version von InDesign muss bei Installation oder Deinstallation geschlossen sein.
+
+    - Für die Nutzung der App sind ein aktives CC-Abonnement, eine gültige Adobe-ID sowie das zugehörige Passwort erforderlich. Die Bestellung der entsprechenden Abo-Nutzungslizenz erfolgt über das self Service Portal.'
+Process:
+- Processor: com.github.thohmann.processors/FileWaveImporter
+  Arguments:
+    fw_fileset_type: Installation
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%APP_EDITION%.%fw_fileset_type%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: ''
+        MODE: '%fw_fileset_type%'
+- Processor: com.github.thohmann.processors/FileWaveImporter
+  Arguments:
+    fw_fileset_type: Update
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%APP_EDITION%.%fw_fileset_type%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+    fw_revision_name: null
+    fw_set_revision_as_default: false
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: app_running_check
+      script_type: preflightScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        APP_BUNDLE_ID: '%APP_BUNDLE_ID%'
+        ACTION_IF_RUNNING: '%ACTION_IF_RUNNING%'
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: '%version%'
+        MODE: '%fw_fileset_type%'
+- Processor: com.github.thohmann.processors/FileWavePlaceholderImporter
+  Arguments:
+    fw_placeholder_name: '%NAME% (App)'
+    fw_dependency_bundle_id: '%APP_BUNDLE_ID%.%APP_EDITION%.Installation'
+    fw_icon_path: '%adobe_icon_path%'
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: adobe_uninstall
+      script_type: postUninstallationScripts
+      variables:
+        ADOBE_SAP_CODE: '%adobe_sap_code%'
+        ADOBE_BASE_VERSION: '%adobe_base_version%'
+        ADOBE_PLATFORM: '%adobe_platform%'
+- Processor: com.github.thohmann.processors/FileWaveKioskImporter
+  Arguments:
+    fileset_id: '%fw_fileset_id%'
+    kiosk_title: '%NAME%'
+    kiosk_description: '%KIOSK_DESCRIPTION%'
+- Processor: com.github.thohmann.processors/AdobePackageArchiver
