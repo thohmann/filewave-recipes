@@ -1,0 +1,68 @@
+Description: Importiert jede neue Version von Cursor in FileWave als Installation- und Update-Fileset und legt einmalig das Platzhalter-Fileset für den Kiosk an.
+Identifier: com.github.thohmann.filewave.Cursor
+ParentRecipe: com.github.thohmann.pkg.Cursor
+MinimumVersion: 1.0.0
+Input:
+  NAME: Cursor
+  APP_NAME: Cursor
+  APP_BUNDLE_ID: com.todesktop.230313mzl4w4u92
+  KIOSK_DESCRIPTION: 'Code-Editor mit eingebautem KI-Assistenten (auf Basis von Visual Studio Code).
+
+
+    - Für die Nutzung ist ein Cursor-Konto erforderlich.'
+Process:
+- Processor: com.github.thohmann.processors/FileWaveImporter
+  Arguments:
+    fw_fileset_type: Installation
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%fw_fileset_type%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: ''
+        MODE: '%fw_fileset_type%'
+- Processor: com.github.thohmann.processors/FileWaveImporter
+  Arguments:
+    fw_fileset_type: Update
+    fw_import_source: '%pkg_path%'
+    fw_fileset_name: '%NAME% %fw_fileset_type% %version% (PKG)'
+    fw_app_bundle_id: '%APP_BUNDLE_ID%.%fw_fileset_type%'
+    fw_app_version: '%version%'
+    fw_create_revision: false
+    fw_revision_name: null
+    fw_set_revision_as_default: false
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: install_update_requirement
+      script_type: requirementScripts
+      variables:
+        APP_NAME: '%APP_NAME%'
+        REQUIRED_VERSION: '%version%'
+        MODE: '%fw_fileset_type%'
+- Processor: com.github.thohmann.processors/FileWavePlaceholderImporter
+  Arguments:
+    fw_placeholder_name: '%NAME% (App)'
+    fw_dependency_bundle_id: '%APP_BUNDLE_ID%.Installation'
+    fw_icon_source: '%pkg_path%'
+- Processor: com.github.thohmann.processors/FileWaveScriptImporter
+  Arguments:
+    fw_scripts:
+    - template: cleanup_paths_and_receipts
+      script_type: postUninstallationScripts
+      variables:
+        PATHS_TO_DELETE:
+        - /Applications/%APP_NAME%.app
+        PKG_RECEIPTS_TO_FORGET: []
+- Processor: com.github.thohmann.processors/FileWaveKioskImporter
+  Arguments:
+    fileset_id: '%fw_fileset_id%'
+    kiosk_title: '%NAME%'
+    kiosk_description: '%KIOSK_DESCRIPTION%'

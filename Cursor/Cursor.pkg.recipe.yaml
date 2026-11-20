@@ -1,0 +1,18 @@
+Description: Baut aus der App in der dmg ein Paket (AppPkgCreator), wie com.github.kevinmcox.pkg.Cursor. Die Version liest schon das Download-Recipe aus der App (CFBundleShortVersionString); der Download hat den festen Namen Cursor-universal.dmg.
+  Liegt im Ordner pkg (pkg_path), der vorher geleert wird; so liegt dort immer nur die aktuelle Version.
+Identifier: com.github.thohmann.pkg.Cursor
+ParentRecipe: com.github.kevinmcox.download.Cursor
+MinimumVersion: 2.9.0
+Input:
+  NAME: Cursor
+  ARCH: universal
+  RELEASETRACK: stable
+Process:
+- Processor: PkgRootCreator
+  Comment: Leert den Ordner pkg (legt ihn neu an), damit nur das aktuelle Paket darin liegt.
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkg'
+    pkgdirs: {}
+- Processor: AppPkgCreator
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/pkg/%NAME%-%version%.pkg'
